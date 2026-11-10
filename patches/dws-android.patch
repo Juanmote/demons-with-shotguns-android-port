@@ -1,0 +1,2038 @@
+diff --git a/UnityProject/Assets/Plugins/Assembly-CSharp-firstpass/Steamworks/CallResult.cs b/UnityProject/Assets/Plugins/Assembly-CSharp-firstpass/Steamworks/CallResult.cs
+index 616a07f..b3ec5c0 100644
+--- a/UnityProject/Assets/Plugins/Assembly-CSharp-firstpass/Steamworks/CallResult.cs
++++ b/UnityProject/Assets/Plugins/Assembly-CSharp-firstpass/Steamworks/CallResult.cs
+@@ -18,8 +18,6 @@ namespace Steamworks
+ 		private GCHandle m_pCCallbackBase;
+ 
+ 		[DebuggerBrowsable(DebuggerBrowsableState.Never)]
+-		private APIDispatchDelegate m_Func__BackingField;
+-
+ 		private SteamAPICall_t m_hAPICall = SteamAPICall_t.Invalid;
+ 
+ 		private readonly int m_size = Marshal.SizeOf(typeof(T));
+@@ -32,31 +30,7 @@ namespace Steamworks
+ 			}
+ 		}
+ 
+-		private event APIDispatchDelegate m_Func
+-		{
+-			add
+-			{
+-				APIDispatchDelegate aPIDispatchDelegate = this.m_Func;
+-				APIDispatchDelegate aPIDispatchDelegate2;
+-				do
+-				{
+-					aPIDispatchDelegate2 = aPIDispatchDelegate;
+-					aPIDispatchDelegate = Interlocked.CompareExchange(ref this.m_Func, (APIDispatchDelegate)Delegate.Combine(aPIDispatchDelegate2, value), aPIDispatchDelegate);
+-				}
+-				while ((object)aPIDispatchDelegate != aPIDispatchDelegate2);
+-			}
+-			remove
+-			{
+-				APIDispatchDelegate aPIDispatchDelegate = this.m_Func;
+-				APIDispatchDelegate aPIDispatchDelegate2;
+-				do
+-				{
+-					aPIDispatchDelegate2 = aPIDispatchDelegate;
+-					aPIDispatchDelegate = Interlocked.CompareExchange(ref this.m_Func, (APIDispatchDelegate)Delegate.Remove(aPIDispatchDelegate2, value), aPIDispatchDelegate);
+-				}
+-				while ((object)aPIDispatchDelegate != aPIDispatchDelegate2);
+-			}
+-		}
++		private event APIDispatchDelegate m_Func;
+ 
+ 		public CallResult(APIDispatchDelegate func = null)
+ 		{
+diff --git a/UnityProject/Assets/Plugins/Assembly-CSharp-firstpass/Steamworks/Callback.cs b/UnityProject/Assets/Plugins/Assembly-CSharp-firstpass/Steamworks/Callback.cs
+index 1285923..6e85d06 100644
+--- a/UnityProject/Assets/Plugins/Assembly-CSharp-firstpass/Steamworks/Callback.cs
++++ b/UnityProject/Assets/Plugins/Assembly-CSharp-firstpass/Steamworks/Callback.cs
+@@ -18,37 +18,11 @@ namespace Steamworks
+ 		private GCHandle m_pCCallbackBase;
+ 
+ 		[DebuggerBrowsable(DebuggerBrowsableState.Never)]
+-		private DispatchDelegate m_Func__BackingField;
+-
+ 		private bool m_bGameServer;
+ 
+ 		private readonly int m_size = Marshal.SizeOf(typeof(T));
+ 
+-		private event DispatchDelegate m_Func
+-		{
+-			add
+-			{
+-				DispatchDelegate dispatchDelegate = this.m_Func;
+-				DispatchDelegate dispatchDelegate2;
+-				do
+-				{
+-					dispatchDelegate2 = dispatchDelegate;
+-					dispatchDelegate = Interlocked.CompareExchange(ref this.m_Func, (DispatchDelegate)Delegate.Combine(dispatchDelegate2, value), dispatchDelegate);
+-				}
+-				while ((object)dispatchDelegate != dispatchDelegate2);
+-			}
+-			remove
+-			{
+-				DispatchDelegate dispatchDelegate = this.m_Func;
+-				DispatchDelegate dispatchDelegate2;
+-				do
+-				{
+-					dispatchDelegate2 = dispatchDelegate;
+-					dispatchDelegate = Interlocked.CompareExchange(ref this.m_Func, (DispatchDelegate)Delegate.Remove(dispatchDelegate2, value), dispatchDelegate);
+-				}
+-				while ((object)dispatchDelegate != dispatchDelegate2);
+-			}
+-		}
++		private event DispatchDelegate m_Func;
+ 
+ 		public Callback(DispatchDelegate func, bool bGameServer = false)
+ 		{
+diff --git a/UnityProject/Assets/Plugins/Assembly-CSharp-firstpass/UnityStandardAssets/ImageEffects/Bloom.cs b/UnityProject/Assets/Plugins/Assembly-CSharp-firstpass/UnityStandardAssets/ImageEffects/Bloom.cs
+index 34bb1b8..618507d 100644
+--- a/UnityProject/Assets/Plugins/Assembly-CSharp-firstpass/UnityStandardAssets/ImageEffects/Bloom.cs
++++ b/UnityProject/Assets/Plugins/Assembly-CSharp-firstpass/UnityStandardAssets/ImageEffects/Bloom.cs
+@@ -123,7 +123,7 @@ namespace UnityStandardAssets.ImageEffects
+ 			doHdr = false;
+ 			if (hdr == HDRBloomMode.Auto)
+ 			{
+-				doHdr = source.format == RenderTextureFormat.ARGBHalf && GetComponent<Camera>().hdr;
++				doHdr = source.format == RenderTextureFormat.ARGBHalf && GetComponent<Camera>().allowHDR;
+ 			}
+ 			else
+ 			{
+diff --git a/UnityProject/Assets/Plugins/Assembly-CSharp-firstpass/UnityStandardAssets/ImageEffects/BloomAndFlares.cs b/UnityProject/Assets/Plugins/Assembly-CSharp-firstpass/UnityStandardAssets/ImageEffects/BloomAndFlares.cs
+index 095be5b..6da6cea 100644
+--- a/UnityProject/Assets/Plugins/Assembly-CSharp-firstpass/UnityStandardAssets/ImageEffects/BloomAndFlares.cs
++++ b/UnityProject/Assets/Plugins/Assembly-CSharp-firstpass/UnityStandardAssets/ImageEffects/BloomAndFlares.cs
+@@ -102,7 +102,7 @@ namespace UnityStandardAssets.ImageEffects
+ 			doHdr = false;
+ 			if (hdr == HDRBloomMode.Auto)
+ 			{
+-				doHdr = source.format == RenderTextureFormat.ARGBHalf && GetComponent<Camera>().hdr;
++				doHdr = source.format == RenderTextureFormat.ARGBHalf && GetComponent<Camera>().allowHDR;
+ 			}
+ 			else
+ 			{
+diff --git a/UnityProject/Assets/Plugins/Assembly-CSharp-firstpass/UnityStandardAssets/ImageEffects/DepthOfField.cs b/UnityProject/Assets/Plugins/Assembly-CSharp-firstpass/UnityStandardAssets/ImageEffects/DepthOfField.cs
+index a28befd..ad41b1b 100644
+--- a/UnityProject/Assets/Plugins/Assembly-CSharp-firstpass/UnityStandardAssets/ImageEffects/DepthOfField.cs
++++ b/UnityProject/Assets/Plugins/Assembly-CSharp-firstpass/UnityStandardAssets/ImageEffects/DepthOfField.cs
+@@ -242,7 +242,7 @@ namespace UnityStandardAssets.ImageEffects
+ 					dx11bokehMaterial.SetTexture("_MainTex", dx11BokehTexture);
+ 					dx11bokehMaterial.SetVector("_Screen", new Vector3(1f / (1f * (float)source.width), 1f / (1f * (float)source.height), internalBlurWidth));
+ 					dx11bokehMaterial.SetPass(2);
+-					Graphics.DrawProceduralIndirect(MeshTopology.Points, cbDrawArgs, 0);
++					Graphics.DrawProceduralIndirectNow(MeshTopology.Points, cbDrawArgs, 0);
+ 					Graphics.Blit(temporary, destination);
+ 					RenderTexture.ReleaseTemporary(temporary);
+ 					RenderTexture.ReleaseTemporary(renderTexture3);
+@@ -296,7 +296,7 @@ namespace UnityStandardAssets.ImageEffects
+ 					dx11bokehMaterial.SetTexture("_MainTex", dx11BokehTexture);
+ 					dx11bokehMaterial.SetVector("_Screen", new Vector3(1f / (1f * (float)renderTexture2.width), 1f / (1f * (float)renderTexture2.height), internalBlurWidth));
+ 					dx11bokehMaterial.SetPass(1);
+-					Graphics.DrawProceduralIndirect(MeshTopology.Points, cbDrawArgs, 0);
++					Graphics.DrawProceduralIndirectNow(MeshTopology.Points, cbDrawArgs, 0);
+ 					dofHdrMaterial.SetTexture("_LowRez", renderTexture2);
+ 					dofHdrMaterial.SetTexture("_FgOverlap", renderTexture5);
+ 					dofHdrMaterial.SetVector("_Offsets", 1f * (float)source.width / (1f * (float)renderTexture2.width) * internalBlurWidth * Vector4.one);
+diff --git a/UnityProject/Assets/Plugins/Assembly-CSharp-firstpass/UnityStandardAssets/ImageEffects/SunShafts.cs b/UnityProject/Assets/Plugins/Assembly-CSharp-firstpass/UnityStandardAssets/ImageEffects/SunShafts.cs
+index 5904007..9e7b00c 100644
+--- a/UnityProject/Assets/Plugins/Assembly-CSharp-firstpass/UnityStandardAssets/ImageEffects/SunShafts.cs
++++ b/UnityProject/Assets/Plugins/Assembly-CSharp-firstpass/UnityStandardAssets/ImageEffects/SunShafts.cs
+@@ -90,7 +90,7 @@ namespace UnityStandardAssets.ImageEffects
+ 			sunShaftsMaterial.SetVector("_SunThreshold", sunThreshold);
+ 			if (!useDepthTexture)
+ 			{
+-				RenderTextureFormat format = ((!GetComponent<Camera>().hdr) ? RenderTextureFormat.Default : RenderTextureFormat.DefaultHDR);
++				RenderTextureFormat format = ((!GetComponent<Camera>().allowHDR) ? RenderTextureFormat.Default : RenderTextureFormat.DefaultHDR);
+ 				RenderTexture renderTexture = (RenderTexture.active = RenderTexture.GetTemporary(source.width, source.height, 0, format));
+ 				GL.ClearWithSkybox(false, GetComponent<Camera>());
+ 				sunShaftsMaterial.SetTexture("_Skybox", renderTexture);
+diff --git a/UnityProject/Assets/Resources/blendvertexcolor.shader b/UnityProject/Assets/Resources/blendvertexcolor.shader
+index e41d2af..c61f2ce 100644
+--- a/UnityProject/Assets/Resources/blendvertexcolor.shader
++++ b/UnityProject/Assets/Resources/blendvertexcolor.shader
+@@ -1,56 +1,35 @@
++// Reescrito para el port de Android (tk2d unlit con color de vértice)
+ Shader "tk2d/BlendVertexColor" {
+ 	Properties {
+ 		_MainTex ("Base (RGB) Trans (A)", 2D) = "white" {}
+ 	}
+-	//DummyShaderTextExporter
+-	SubShader{
+-		Tags { "RenderType"="Opaque" }
+-		LOD 200
+-
+-		Pass
+-		{
+-			HLSLPROGRAM
++	SubShader {
++		Tags { "Queue"="Transparent" "IgnoreProjector"="True" "RenderType"="Transparent" }
++		ZWrite Off Lighting Off Cull Off Fog { Mode Off }
++		Blend SrcAlpha OneMinusSrcAlpha
++		LOD 110
++		Pass {
++			CGPROGRAM
+ 			#pragma vertex vert
+ 			#pragma fragment frag
+-
+-			float4x4 unity_ObjectToWorld;
+-			float4x4 unity_MatrixVP;
++			#include "UnityCG.cginc"
++			sampler2D _MainTex;
+ 			float4 _MainTex_ST;
+-
+-			struct Vertex_Stage_Input
+-			{
+-				float4 pos : POSITION;
+-				float2 uv : TEXCOORD0;
+-			};
+-
+-			struct Vertex_Stage_Output
+-			{
+-				float2 uv : TEXCOORD0;
+-				float4 pos : SV_POSITION;
+-			};
+-
+-			Vertex_Stage_Output vert(Vertex_Stage_Input input)
+-			{
+-				Vertex_Stage_Output output;
+-				output.uv = (input.uv.xy * _MainTex_ST.xy) + _MainTex_ST.zw;
+-				output.pos = mul(unity_MatrixVP, mul(unity_ObjectToWorld, input.pos));
+-				return output;
++			struct appdata { float4 vertex : POSITION; float2 uv : TEXCOORD0; fixed4 color : COLOR; };
++			struct v2f { float4 pos : SV_POSITION; float2 uv : TEXCOORD0; fixed4 color : COLOR; };
++			v2f vert (appdata v) {
++				v2f o;
++				o.pos = UnityObjectToClipPos(v.vertex);
++				o.uv = TRANSFORM_TEX(v.uv, _MainTex);
++				o.color = v.color;
++				return o;
+ 			}
+-
+-			Texture2D<float4> _MainTex;
+-			SamplerState sampler_MainTex;
+-
+-			struct Fragment_Stage_Input
+-			{
+-				float2 uv : TEXCOORD0;
+-			};
+-
+-			float4 frag(Fragment_Stage_Input input) : SV_TARGET
+-			{
+-				return _MainTex.Sample(sampler_MainTex, input.uv.xy);
++			fixed4 frag (v2f i) : SV_Target {
++				fixed4 c = tex2D(_MainTex, i.uv) * i.color;
++				
++				return c;
+ 			}
+-
+-			ENDHLSL
++			ENDCG
+ 		}
+ 	}
+-}
+\ No newline at end of file
++}
+diff --git a/UnityProject/Assets/Scenes/Menus/MainMenu/MainMenuScene.unity b/UnityProject/Assets/Scenes/Menus/MainMenu/MainMenuScene.unity
+index a178965..3e8ebde 100644
+--- a/UnityProject/Assets/Scenes/Menus/MainMenu/MainMenuScene.unity
++++ b/UnityProject/Assets/Scenes/Menus/MainMenu/MainMenuScene.unity
+@@ -148678,7 +148678,7 @@ MonoBehaviour:
+   data:
+     version: 1
+     font: {fileID: 114724804207875695, guid: 5f50d72f033fa304b89c6c239a886b3d, type: 2}
+-    text: "MindShaft Games is:\r\nNicholas DiMucci\r - @NickDiMucci\nSarah Malaspina\r\nPresley, the game developer dog!\r\n\r\nArtwork and additional design by:\r\nKyle Nunery\r - @knunery\n\nAdditional artwork by:\nMike Stanton - drmikey.com\n\nConcept and promotional art by:\n\rMilan Jaram - milanjaram.com\n\nMusic by:\r\nVHS Glitch\r - @VHSGlitch\n\nVoice over by:\nJon Bailey - youtube.com/user/jon3pnt0\n\r\n\n\n\n\n\n\nSound effects used:\r\nMaxDemianAGL - freesound.org/people/MaxDemianAGL/sounds/131050/\r\ninfopablo - freesound.org/people/infopablo/sounds/21887/\r\nMAJ061785 - freesound.org/people/MAJ061785/sounds/85549/\r\nBenboncan - freesound.org/people/Benboncan/sounds/73005/\r\nCosmicD - freesound.org/people/CosmicD/sounds/33503/\r\nPhreaKsAccount - freesound.org/people/PhreaKsAccount/sounds/46500/\n\nChanges were made to these sound effects."
++    text: "MindShaft Games is:\r\nNicholas DiMucci\r - @NickDiMucci\nSarah Malaspina\r\nPresley, the game developer dog!\r\n\r\nArtwork and additional design by:\r\nKyle Nunery\r - @knunery\n\nAdditional artwork by:\nMike Stanton - drmikey.com\n\nConcept and promotional art by:\n\rMilan Jaram - milanjaram.com\n\nMusic by:\r\nVHS Glitch\r - @VHSGlitch\n\nVoice over by:\nJon Bailey - youtube.com/user/jon3pnt0\n\nPorted by Juanmote\n\n\n\n\n\nSound effects used:\r\nMaxDemianAGL - freesound.org/people/MaxDemianAGL/sounds/131050/\r\ninfopablo - freesound.org/people/infopablo/sounds/21887/\r\nMAJ061785 - freesound.org/people/MAJ061785/sounds/85549/\r\nBenboncan - freesound.org/people/Benboncan/sounds/73005/\r\nCosmicD - freesound.org/people/CosmicD/sounds/33503/\r\nPhreaKsAccount - freesound.org/people/PhreaKsAccount/sounds/46500/\n\nChanges were made to these sound effects."
+     color: {r: 1, g: 1, b: 1, a: 1}
+     color2: {r: 1, g: 1, b: 1, a: 1}
+     useGradient: 0
+@@ -148687,7 +148687,7 @@ MonoBehaviour:
+     renderLayer: 0
+     scale: {x: 0.45, y: 0.45, z: 1}
+     kerning: 0
+-    maxChars: 777
++    maxChars: 900
+     inlineStyling: 0
+     formatting: 1
+     wordWrapWidth: 0
+@@ -159634,7 +159634,7 @@ MonoBehaviour:
+   data:
+     version: 1
+     font: {fileID: 114724804207875695, guid: 5f50d72f033fa304b89c6c239a886b3d, type: 2}
+-    text: "MindShaft Games is:\r\nNicholas DiMucci\r - @NickDiMucci\nSarah Malaspina\r\nPresley, the game developer dog!\r\n\r\nArtwork and additional design by:\r\nKyle Nunery\r - @knunery\n\nAdditional artwork by:\nMike Stanton - drmikey.com\n\nConcept and promotional art by:\n\rMilan Jaram - milanjaram.com\n\nMusic by:\r\nVHS Glitch\r - @VHSGlitch\n\nVoice over by:\nJon Bailey - youtube.com/user/jon3pnt0\n\r\n\n\n\n\n\n\nSound effects used:\r\nMaxDemianAGL - freesound.org/people/MaxDemianAGL/sounds/131050/\r\ninfopablo - freesound.org/people/infopablo/sounds/21887/\r\nMAJ061785 - freesound.org/people/MAJ061785/sounds/85549/\r\nBenboncan - freesound.org/people/Benboncan/sounds/73005/\r\nCosmicD - freesound.org/people/CosmicD/sounds/33503/\r\nPhreaKsAccount - freesound.org/people/PhreaKsAccount/sounds/46500/\n\nChanges were made to these sound effects."
++    text: "MindShaft Games is:\r\nNicholas DiMucci\r - @NickDiMucci\nSarah Malaspina\r\nPresley, the game developer dog!\r\n\r\nArtwork and additional design by:\r\nKyle Nunery\r - @knunery\n\nAdditional artwork by:\nMike Stanton - drmikey.com\n\nConcept and promotional art by:\n\rMilan Jaram - milanjaram.com\n\nMusic by:\r\nVHS Glitch\r - @VHSGlitch\n\nVoice over by:\nJon Bailey - youtube.com/user/jon3pnt0\n\nPorted by Juanmote\n\n\n\n\n\nSound effects used:\r\nMaxDemianAGL - freesound.org/people/MaxDemianAGL/sounds/131050/\r\ninfopablo - freesound.org/people/infopablo/sounds/21887/\r\nMAJ061785 - freesound.org/people/MAJ061785/sounds/85549/\r\nBenboncan - freesound.org/people/Benboncan/sounds/73005/\r\nCosmicD - freesound.org/people/CosmicD/sounds/33503/\r\nPhreaKsAccount - freesound.org/people/PhreaKsAccount/sounds/46500/\n\nChanges were made to these sound effects."
+     color: {r: 0, g: 0, b: 0, a: 1}
+     color2: {r: 1, g: 1, b: 1, a: 1}
+     useGradient: 0
+@@ -159643,7 +159643,7 @@ MonoBehaviour:
+     renderLayer: -1
+     scale: {x: 0.45, y: 0.45, z: 1}
+     kerning: 0
+-    maxChars: 777
++    maxChars: 900
+     inlineStyling: 0
+     formatting: 1
+     wordWrapWidth: 0
+diff --git a/UnityProject/Assets/Scripts/Assembly-CSharp/GameUtilities.cs b/UnityProject/Assets/Scripts/Assembly-CSharp/GameUtilities.cs
+index d505bdd..3f8d1a5 100644
+--- a/UnityProject/Assets/Scripts/Assembly-CSharp/GameUtilities.cs
++++ b/UnityProject/Assets/Scripts/Assembly-CSharp/GameUtilities.cs
+@@ -53,7 +53,11 @@ public static class GameUtilities
+ 
+ 	public static IEnumerator Vibrate(float vibrateTime, float intensity, InputDevice inputDevice)
+ 	{
+-		if (inputDevice != null)
++		if (Application.platform == RuntimePlatform.Android)
++		{
++			AndroidRumble.Vibrate(inputDevice, vibrateTime, intensity); // Port Android
++		}
++		else if (inputDevice != null)
+ 		{
+ 			inputDevice.Vibrate(intensity);
+ 			yield return new WaitForSeconds(vibrateTime);
+@@ -328,6 +332,8 @@ public static class GameUtilities
+ 
+ 	public static void SetResolution(bool isFullscreen)
+ 	{
++		// Port Android: siempre pantalla completa a la resolución nativa
++		if (Application.platform == RuntimePlatform.Android) return;
+ 		int width;
+ 		int height;
+ 		if (isFullscreen)
+diff --git a/UnityProject/Assets/Scripts/Assembly-CSharp/InControl/GenericAndroidProfile.cs b/UnityProject/Assets/Scripts/Assembly-CSharp/InControl/GenericAndroidProfile.cs
+index 6b39854..572d3b0 100644
+--- a/UnityProject/Assets/Scripts/Assembly-CSharp/InControl/GenericAndroidProfile.cs
++++ b/UnityProject/Assets/Scripts/Assembly-CSharp/InControl/GenericAndroidProfile.cs
+@@ -9,6 +9,7 @@ namespace InControl
+ 			base.Meta = "Generic Controller on Android";
+ 			base.IncludePlatforms = new string[1] { "Android" };
+ 			JoystickNames = new string[1] { "Broadcom Bluetooth HID" };
++			LastResortRegex = ".*"; // Port Android: cualquier mando desconocido usa el mapeo estándar de Android
+ 			base.ButtonMappings = new InputControlMapping[10]
+ 			{
+ 				new InputControlMapping
+diff --git a/UnityProject/Assets/Scripts/Assembly-CSharp/InControl/InControlManager.cs b/UnityProject/Assets/Scripts/Assembly-CSharp/InControl/InControlManager.cs
+index c59a0ad..8be720f 100644
+--- a/UnityProject/Assets/Scripts/Assembly-CSharp/InControl/InControlManager.cs
++++ b/UnityProject/Assets/Scripts/Assembly-CSharp/InControl/InControlManager.cs
+@@ -50,10 +50,10 @@ namespace InControl
+ 			InputManager.InvertYAxis = invertYAxis;
+ 			InputManager.SuspendInBackground = suspendInBackground;
+ 			InputManager.EnableICade = enableICade;
+-			InputManager.EnableXInput = enableXInput;
++			InputManager.EnableXInput = false; // Port Android: XInput solo existe en Windows
+ 			InputManager.XInputUpdateRate = (uint)Mathf.Max(xInputUpdateRate, 0);
+ 			InputManager.XInputBufferSize = (uint)Mathf.Max(xInputBufferSize, 0);
+-			InputManager.EnableNativeInput = enableNativeInput;
++			InputManager.EnableNativeInput = false; // Port Android: entrada nativa solo Windows/Mac
+ 			InputManager.NativeInputEnableXInput = nativeInputEnableXInput;
+ 			InputManager.NativeInputUpdateRate = (uint)Mathf.Max(nativeInputUpdateRate, 0);
+ 			InputManager.NativeInputPreventSleep = nativeInputPreventSleep;
+diff --git a/UnityProject/Assets/Scripts/Assembly-CSharp/InControl/KeyInfo.cs b/UnityProject/Assets/Scripts/Assembly-CSharp/InControl/KeyInfo.cs
+index 961682e..db17290 100644
+--- a/UnityProject/Assets/Scripts/Assembly-CSharp/InControl/KeyInfo.cs
++++ b/UnityProject/Assets/Scripts/Assembly-CSharp/InControl/KeyInfo.cs
+@@ -147,7 +147,7 @@ namespace InControl
+ 		{
+ 			get
+ 			{
+-				if (Application.platform == RuntimePlatform.OSXEditor || Application.platform == RuntimePlatform.OSXPlayer || Application.platform == RuntimePlatform.OSXDashboardPlayer)
++				if (Application.platform == RuntimePlatform.OSXEditor || Application.platform == RuntimePlatform.OSXPlayer || Application.platform == (RuntimePlatform)4)
+ 				{
+ 					return macName;
+ 				}
+diff --git a/UnityProject/Assets/Scripts/Assembly-CSharp/InControl/UnityInputDeviceProfile.cs b/UnityProject/Assets/Scripts/Assembly-CSharp/InControl/UnityInputDeviceProfile.cs
+index 456e473..6350821 100644
+--- a/UnityProject/Assets/Scripts/Assembly-CSharp/InControl/UnityInputDeviceProfile.cs
++++ b/UnityProject/Assets/Scripts/Assembly-CSharp/InControl/UnityInputDeviceProfile.cs
+@@ -149,7 +149,7 @@ namespace InControl
+ 			base.LowerDeadZone = 0.2f;
+ 			base.UpperDeadZone = 0.9f;
+ 			MinUnityVersion = new VersionInfo(3, 0, 0, 0);
+-			MaxUnityVersion = new VersionInfo(9, 0, 0, 0);
++			MaxUnityVersion = new VersionInfo(9999, 0, 0, 0); // Port Android: Unity 2021 tiene versión 2021.x
+ 		}
+ 
+ 		public override bool HasJoystickName(string joystickName)
+diff --git a/UnityProject/Assets/Scripts/Assembly-CSharp/SplashView.cs b/UnityProject/Assets/Scripts/Assembly-CSharp/SplashView.cs
+index 14a9d50..28cd17c 100644
+--- a/UnityProject/Assets/Scripts/Assembly-CSharp/SplashView.cs
++++ b/UnityProject/Assets/Scripts/Assembly-CSharp/SplashView.cs
+@@ -13,6 +13,7 @@ public class SplashView : MonoBehaviour
+ 	private void Start()
+ 	{
+ 		StartCoroutine(StartGame());
++		StartCoroutine(DwsFixFirstLine());
+ 		string[] commandLineArgs = Environment.GetCommandLineArgs();
+ 		for (int i = 0; i < commandLineArgs.Length; i++)
+ 		{
+@@ -34,6 +35,64 @@ public class SplashView : MonoBehaviour
+ 		GameUtilities.DebugLog(string.Concat("System info\n\t\t", SystemInfo.operatingSystem, "\n\t\tCPU type: ", SystemInfo.processorType, "\n\t\tCPU count: ", SystemInfo.processorCount, "\n\t\tMemory size: ", SystemInfo.systemMemorySize, "\n\t\tPlatform: ", Application.platform, "\n\t\tGPU: ", SystemInfo.graphicsDeviceName));
+ 	}
+ 
++	// Port Android: la primera línea son tres textos colocados a mano para el inglés
++	// ("THE FOLLOWING" / "GAME" / "HAS BEEN APPROVED FOR"). Traducidos quedaban huecos desiguales,
++	// así que se vuelven a encadenar con el mismo espacio entre ellos y la línea centrada donde estaba.
++	private IEnumerator DwsFixFirstLine()
++	{
++		yield return null;
++		if (!Loc.Spanish)
++		{
++			yield break;
++		}
++		Transform[] parts = new Transform[3];
++		string[] names = new string[3] { "The Following", "Game", "Has Been Approved" };
++		Renderer[] renderers = new Renderer[3];
++		for (int i = 0; i < 3; i++)
++		{
++			GameObject go = GameObject.Find(names[i]);
++			if (go == null)
++			{
++				yield break;
++			}
++			tk2dTextMesh mesh = go.GetComponent<tk2dTextMesh>();
++			if (mesh != null)
++			{
++				mesh.ForceBuild();
++			}
++			parts[i] = go.transform;
++			renderers[i] = go.GetComponent<Renderer>();
++			if (renderers[i] == null)
++			{
++				yield break;
++			}
++		}
++		tk2dTextMesh first = parts[0].GetComponent<tk2dTextMesh>();
++		float space = 0.8f;
++		if (first != null)
++		{
++			Vector2 withSpace = first.GetMeshDimensionsForString("E E");
++			Vector2 without = first.GetMeshDimensionsForString("EE");
++			float measured = (withSpace.x - without.x) * parts[0].lossyScale.x;
++			if (measured > 0.01f)
++			{
++				space = measured;
++			}
++		}
++		Bounds b0 = renderers[0].bounds;
++		Bounds b1 = renderers[1].bounds;
++		Bounds b2 = renderers[2].bounds;
++		float total = b0.size.x + space + b1.size.x + space + b2.size.x;
++		float center = (b0.min.x + b2.max.x) * 0.5f;
++		float left = center - total * 0.5f;
++		float[] targets = new float[3] { left, left + b0.size.x + space, left + b0.size.x + space + b1.size.x + space };
++		Bounds[] bounds = new Bounds[3] { b0, b1, b2 };
++		for (int j = 0; j < 3; j++)
++		{
++			parts[j].position += new Vector3(targets[j] - bounds[j].min.x, 0f, 0f);
++		}
++	}
++
+ 	private IEnumerator StartGame()
+ 	{
+ 		yield return new WaitForSeconds(5f);
+diff --git a/UnityProject/Assets/Scripts/Assembly-CSharp/SteamManager.cs b/UnityProject/Assets/Scripts/Assembly-CSharp/SteamManager.cs
+index 2073f25..a456b37 100644
+--- a/UnityProject/Assets/Scripts/Assembly-CSharp/SteamManager.cs
++++ b/UnityProject/Assets/Scripts/Assembly-CSharp/SteamManager.cs
+@@ -34,6 +34,7 @@ internal class SteamManager : MonoBehaviour
+ 
+ 	private void Awake()
+ 	{
++		// Port Android: Steam no existe aquí, se desactiva por completo.
+ 		if (s_instance != null)
+ 		{
+ 			UnityEngine.Object.Destroy(base.gameObject);
+@@ -41,33 +42,7 @@ internal class SteamManager : MonoBehaviour
+ 		}
+ 		s_instance = this;
+ 		UnityEngine.Object.DontDestroyOnLoad(base.gameObject);
+-		if (!Packsize.Test())
+-		{
+-			Debug.LogError("[Steamworks.NET] Packsize Test returned false, the wrong version of Steamworks.NET is being run in this platform.", this);
+-		}
+-		if (!DllCheck.Test())
+-		{
+-			Debug.LogError("[Steamworks.NET] DllCheck Test returned false, One or more of the Steamworks binaries seems to be the wrong version.", this);
+-		}
+-		try
+-		{
+-			if (SteamAPI.RestartAppIfNecessary(new AppId_t(370940u)))
+-			{
+-				Application.Quit();
+-				return;
+-			}
+-		}
+-		catch (DllNotFoundException ex)
+-		{
+-			Debug.LogError("[Steamworks.NET] Could not load [lib]steam_api.dll/so/dylib. It's likely not in the correct location. Refer to the README for more details.\n" + ex, this);
+-			Application.Quit();
+-			return;
+-		}
+-		m_bInitialized = SteamAPI.Init();
+-		if (!m_bInitialized)
+-		{
+-			Debug.LogError("[Steamworks.NET] SteamAPI_Init() failed. Refer to Valve's documentation or the comment above this line for more information.", this);
+-		}
++		m_bInitialized = false;
+ 	}
+ 
+ 	private void OnEnable()
+diff --git a/UnityProject/Assets/Scripts/Assembly-CSharp/UnityToolbag/CacheBehaviour.cs b/UnityProject/Assets/Scripts/Assembly-CSharp/UnityToolbag/CacheBehaviour.cs
+index 2b2ba9b..229f681 100644
+--- a/UnityProject/Assets/Scripts/Assembly-CSharp/UnityToolbag/CacheBehaviour.cs
++++ b/UnityProject/Assets/Scripts/Assembly-CSharp/UnityToolbag/CacheBehaviour.cs
+@@ -16,17 +16,13 @@ namespace UnityToolbag
+ 
+ 		private ConstantForce _constantForce;
+ 
+-		private GUIText _guiText;
+ 
+-		private GUITexture _guiTexture;
+ 
+ 		private HingeJoint _hingeJoint;
+ 
+ 		private Light _light;
+ 
+-		private NetworkView _networkView;
+ 
+-		private ParticleEmitter _particleEmitter;
+ 
+ 		private ParticleSystem _particleSystem;
+ 
+@@ -86,21 +82,7 @@ namespace UnityToolbag
+ 			}
+ 		}
+ 
+-		public GUIText guiText
+-		{
+-			get
+-			{
+-				return (!_guiText) ? (_guiText = GetComponent<GUIText>()) : _guiText;
+-			}
+-		}
+ 
+-		public GUITexture guiTexture
+-		{
+-			get
+-			{
+-				return (!_guiTexture) ? (_guiTexture = GetComponent<GUITexture>()) : _guiTexture;
+-			}
+-		}
+ 
+ 		public HingeJoint hingeJoint
+ 		{
+@@ -118,21 +100,7 @@ namespace UnityToolbag
+ 			}
+ 		}
+ 
+-		public NetworkView networkView
+-		{
+-			get
+-			{
+-				return (!_networkView) ? (_networkView = GetComponent<NetworkView>()) : _networkView;
+-			}
+-		}
+ 
+-		public ParticleEmitter particleEmitter
+-		{
+-			get
+-			{
+-				return (!_particleEmitter) ? (_particleEmitter = GetComponent<ParticleEmitter>()) : _particleEmitter;
+-			}
+-		}
+ 
+ 		public ParticleSystem particleSystem
+ 		{
+diff --git a/UnityProject/Assets/Scripts/Assembly-CSharp/UnityToolbag/GameSaveSystem.cs b/UnityProject/Assets/Scripts/Assembly-CSharp/UnityToolbag/GameSaveSystem.cs
+index 5d44290..bfacbc8 100644
+--- a/UnityProject/Assets/Scripts/Assembly-CSharp/UnityToolbag/GameSaveSystem.cs
++++ b/UnityProject/Assets/Scripts/Assembly-CSharp/UnityToolbag/GameSaveSystem.cs
+@@ -60,7 +60,7 @@ namespace UnityToolbag
+ 				throw new ArgumentException("useRollingBackups is true but backupCount isn't a positive value");
+ 			}
+ 			_settings = settings.Clone();
+-			_fileSaveLocation = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "My Games");
++			_fileSaveLocation = UnityEngine.Application.persistentDataPath; // Port Android
+ 			if (!string.IsNullOrEmpty(_settings.companyName))
+ 			{
+ 				_fileSaveLocation = Path.Combine(_fileSaveLocation, _settings.companyName);
+diff --git a/UnityProject/Assets/Scripts/Assembly-CSharp/com/mindshaft/overtime/OvertimeRoot.cs b/UnityProject/Assets/Scripts/Assembly-CSharp/com/mindshaft/overtime/OvertimeRoot.cs
+index a283198..1ac04ab 100644
+--- a/UnityProject/Assets/Scripts/Assembly-CSharp/com/mindshaft/overtime/OvertimeRoot.cs
++++ b/UnityProject/Assets/Scripts/Assembly-CSharp/com/mindshaft/overtime/OvertimeRoot.cs
+@@ -22,7 +22,7 @@ namespace com.mindshaft.overtime
+ 		private void SetFrameRateCap()
+ 		{
+ 			QualitySettings.vSyncCount = 0;
+-			if (GameSettings.LockFramerate)
++			if (GameSettings.LockFramerate || Application.platform == RuntimePlatform.Android) // Port Android: 60 fps fijos
+ 			{
+ 				Application.targetFrameRate = 60;
+ 			}
+diff --git a/UnityProject/Assets/Scripts/Assembly-CSharp/com/mindshaft/overtime/command/EotPlayerIsDeadCommand.cs b/UnityProject/Assets/Scripts/Assembly-CSharp/com/mindshaft/overtime/command/EotPlayerIsDeadCommand.cs
+index bba4efb..23e8bbe 100644
+--- a/UnityProject/Assets/Scripts/Assembly-CSharp/com/mindshaft/overtime/command/EotPlayerIsDeadCommand.cs
++++ b/UnityProject/Assets/Scripts/Assembly-CSharp/com/mindshaft/overtime/command/EotPlayerIsDeadCommand.cs
+@@ -38,7 +38,10 @@ namespace com.mindshaft.overtime.command
+ 
+ 		public override void Execute()
+ 		{
+-			EotGameStateModel.PlayerLives[Model.PlayerWhoDied.View.PlayerIndex]--;
++			if (!DwsCheats.InfiniteLives) // Port Android: truco de vidas infinitas
++			{
++				EotGameStateModel.PlayerLives[Model.PlayerWhoDied.View.PlayerIndex]--;
++			}
+ 			if (EotGameStateModel.PlayerSoulCaptures[0] > 0)
+ 			{
+ 				PlaySoundFxSignal.Dispatch(new PlaySoundFxModel(SoundFx.PLAYER_BLACK_SOUL_PICKUP, Model.PlayerWhoDied.transform.position, 0.4f, SpatialBlend.TwoDee));
+diff --git a/UnityProject/Assets/Scripts/Assembly-CSharp/com/mindshaft/overtime/command/ExplosionBlastCommand.cs b/UnityProject/Assets/Scripts/Assembly-CSharp/com/mindshaft/overtime/command/ExplosionBlastCommand.cs
+index d981710..d21ca75 100644
+--- a/UnityProject/Assets/Scripts/Assembly-CSharp/com/mindshaft/overtime/command/ExplosionBlastCommand.cs
++++ b/UnityProject/Assets/Scripts/Assembly-CSharp/com/mindshaft/overtime/command/ExplosionBlastCommand.cs
+@@ -66,6 +66,7 @@ namespace com.mindshaft.overtime.command
+ 			Model.ExplosionSpriteAnim.Play(Model.ExplosionAnim);
+ 			Model.ExplosionSpriteAnim.AnimationCompleted = ExplosionAnimOverDelegate;
+ 			FireCameraShakeSignal();
++			AndroidRumble.Explosion(Model.Transform.position, Model.Wielder); // Port Android
+ 			float radius = 3.5f;
+ 			Collider[] array = Physics.OverlapSphere(Model.Transform.position, radius);
+ 			Collider[] array2 = array;
+diff --git a/UnityProject/Assets/Scripts/Assembly-CSharp/com/mindshaft/overtime/command/IsPlayerShieldedCommand.cs b/UnityProject/Assets/Scripts/Assembly-CSharp/com/mindshaft/overtime/command/IsPlayerShieldedCommand.cs
+index 487f487..22d6c33 100644
+--- a/UnityProject/Assets/Scripts/Assembly-CSharp/com/mindshaft/overtime/command/IsPlayerShieldedCommand.cs
++++ b/UnityProject/Assets/Scripts/Assembly-CSharp/com/mindshaft/overtime/command/IsPlayerShieldedCommand.cs
+@@ -61,6 +61,7 @@ namespace com.mindshaft.overtime.command
+ 					playSoundFxModel.OnlyOneInstanceThisFrame = true;
+ 					PlaySoundFxSignal.Dispatch(playSoundFxModel);
+ 					Model.IsDeflected = true;
++					BlockRumble(0.15f, 0.8f);
+ 					Fail();
+ 				}
+ 			}
+@@ -78,6 +79,7 @@ namespace com.mindshaft.overtime.command
+ 					PushbackEntitySignal.Dispatch(new PushbackEntityModel(Model.WhoWasHit, pushbackRate2, frameCount2, 0f - num8));
+ 					PlaySoundFxSignal.Dispatch(new PlaySoundFxModel(SoundFx.BANG_KICKBACK1, Model.WhoFired.transform.position, SpatialBlend.ThreeDee));
+ 					DeductFromShieldHealth(50);
++					BlockRumble(0.2f, 0.9f);
+ 					Fail();
+ 				}
+ 			}
+@@ -88,6 +90,7 @@ namespace com.mindshaft.overtime.command
+ 				if ((num9 < 0f && Model.ProjectileXDirection && Model.WhoWasHitSpriteFlipX) || (num9 > 0f && !Model.ProjectileXDirection && !Model.WhoWasHitSpriteFlipX))
+ 				{
+ 					GameUtilities.DebugLog("Blocked misc item.");
++					BlockRumble(0.15f, 0.8f);
+ 					Rigidbody component2 = Model.ProjectileGo.GetComponent<Rigidbody>();
+ 					component2.velocity = Vector3.Reflect(component2.velocity, Vector3.left * Mathf.Sign(component2.velocity.x));
+ 					Fail();
+@@ -95,6 +98,15 @@ namespace com.mindshaft.overtime.command
+ 			}
+ 		}
+ 
++		// Port Android
++		private void BlockRumble(float seconds, float intensity)
++		{
++			if ((bool)Model.WhoWasHitView && !Model.WhoWasHitView.IsClone && Model.WhoWasHitView.GamePlayerActions != null)
++			{
++				AndroidRumble.Event(Model.WhoWasHitView.GamePlayerActions.Device, seconds, intensity);
++			}
++		}
++
+ 		private void DeductFromShieldHealth(int amount)
+ 		{
+ 			Model.WhoWasHitView.ShieldView.ShieldHealth -= amount;
+diff --git a/UnityProject/Assets/Scripts/Assembly-CSharp/com/mindshaft/overtime/command/MonitorAchievementsCommand.cs b/UnityProject/Assets/Scripts/Assembly-CSharp/com/mindshaft/overtime/command/MonitorAchievementsCommand.cs
+index 95c254f..292165d 100644
+--- a/UnityProject/Assets/Scripts/Assembly-CSharp/com/mindshaft/overtime/command/MonitorAchievementsCommand.cs
++++ b/UnityProject/Assets/Scripts/Assembly-CSharp/com/mindshaft/overtime/command/MonitorAchievementsCommand.cs
+@@ -39,6 +39,13 @@ namespace com.mindshaft.overtime.command
+ 
+ 		public override void Execute()
+ 		{
++			if (!SteamManager.Initialized)
++			{
++				// Port Android: se comprueban las mismas condiciones sin Steam.
++				Retain();
++				RoutineRunner.StartCoroutine(Update());
++				return;
++			}
+ 			if (SteamManager.Initialized)
+ 			{
+ 				_gameId = new CGameID(SteamUtils.GetAppID());
+@@ -52,10 +59,6 @@ namespace com.mindshaft.overtime.command
+ 		{
+ 			while (!GameStateModel.IsGameOver)
+ 			{
+-				if (!SteamManager.Initialized)
+-				{
+-					yield return null;
+-				}
+ 				if (!_checkedEotCompletedAchs && GameSettings.GameMode == GameMode.EOT)
+ 				{
+ 					_checkedEotCompletedAchs = true;
+@@ -74,6 +77,16 @@ namespace com.mindshaft.overtime.command
+ 					IsStatBasedAchievementUnlocked(GameStateModel.ClientStats[GameStatType.MONSTER_KILL], Achievement.ACH_SWEATING_BLOOD, (int stat) => stat >= 3);
+ 					IsStatBasedAchievementUnlocked(gamePlayerStats.TotalSuicides, Achievement.ACH_SUICIDE, (int stat) => stat >= 10);
+ 					IsStatBasedAchievementUnlocked(gamePlayerStats.TotalTauntsServed, Achievement.ACH_AHOLE, (int stat) => stat >= 5);
++					// Port Android: mejor marca por partida, para el contador de la lista de logros.
++					DwsAchievements.RecordBest(Achievement.ACH_LADY_LUCK, gamePlayerStats.TotalTarotCardsUsed);
++					DwsAchievements.RecordBest(Achievement.ACH_SHOOTING_BLANKS, gamePlayerStats.TotalDryShots);
++					DwsAchievements.RecordBest(Achievement.ACH_WING_ENVY, gamePlayerStats.TotalJumps);
++					DwsAchievements.RecordBest(Achievement.ACH_SUICIDE, gamePlayerStats.TotalSuicides);
++					DwsAchievements.RecordBest(Achievement.ACH_AHOLE, gamePlayerStats.TotalTauntsServed);
++					if (i < GameStateModel.PlayerKillStreaks.Count)
++					{
++						DwsAchievements.RecordBest(Achievement.ACH_BORN_EVIL, GameStateModel.PlayerKillStreaks[i]);
++					}
+ 				}
+ 				if (_storeStats)
+ 				{
+@@ -81,6 +94,7 @@ namespace com.mindshaft.overtime.command
+ 				}
+ 				yield return null;
+ 			}
++			DwsAchievements.Flush();
+ 			if (GameSettings.GameMode != GameMode.EOT)
+ 			{
+ 				for (int num = 0; num < GameStateModel.PlayerStats.Count; num++)
+@@ -114,6 +128,15 @@ namespace com.mindshaft.overtime.command
+ 
+ 		private void StoreStats()
+ 		{
++			if (!SteamManager.Initialized)
++			{
++				_storeStats = false;
++				if (_release)
++				{
++					Release();
++				}
++				return;
++			}
+ 			GameUtilities.DebugLog("Storing stats.");
+ 			if (!SteamUserStats.StoreStats())
+ 			{
+@@ -213,6 +236,12 @@ namespace com.mindshaft.overtime.command
+ 
+ 		private void StoreAchievement(AchievementModel achievement)
+ 		{
++			if (!SteamManager.Initialized)
++			{
++				// Port Android: logro guardado en la consola (con trucos puede no concederse).
++				achievement.Achieved = DwsAchievements.Unlock(achievement.AchievementId);
++				return;
++			}
+ 			achievement.Achieved = true;
+ 			SteamUserStats.SetAchievement(achievement.AchievementId.ToString());
+ 			_storeStats = true;
+diff --git a/UnityProject/Assets/Scripts/Assembly-CSharp/com/mindshaft/overtime/command/PlaySoundFxCommand.cs b/UnityProject/Assets/Scripts/Assembly-CSharp/com/mindshaft/overtime/command/PlaySoundFxCommand.cs
+index ea817ba..f3fb514 100644
+--- a/UnityProject/Assets/Scripts/Assembly-CSharp/com/mindshaft/overtime/command/PlaySoundFxCommand.cs
++++ b/UnityProject/Assets/Scripts/Assembly-CSharp/com/mindshaft/overtime/command/PlaySoundFxCommand.cs
+@@ -18,6 +18,13 @@ namespace com.mindshaft.overtime.command
+ 
+ 		private static SoundFxAudioView _announcerAudio;
+ 
++		// Port Android: se vacía al reiniciar la escena (los sonidos de la partida anterior ya no existen).
++		public static void DwsClearStatics()
++		{
++			_currentlyPlayingSounds = null;
++			_announcerAudio = null;
++		}
++
+ 		[Inject]
+ 		public PlaySoundFxModel Model { get; set; }
+ 
+diff --git a/UnityProject/Assets/Scripts/Assembly-CSharp/com/mindshaft/overtime/command/RetrieveStatsAndAchievementsCommand.cs b/UnityProject/Assets/Scripts/Assembly-CSharp/com/mindshaft/overtime/command/RetrieveStatsAndAchievementsCommand.cs
+index 4ed8ec5..3333349 100644
+--- a/UnityProject/Assets/Scripts/Assembly-CSharp/com/mindshaft/overtime/command/RetrieveStatsAndAchievementsCommand.cs
++++ b/UnityProject/Assets/Scripts/Assembly-CSharp/com/mindshaft/overtime/command/RetrieveStatsAndAchievementsCommand.cs
+@@ -32,6 +32,25 @@ namespace com.mindshaft.overtime.command
+ 
+ 		public override void Execute()
+ 		{
++			// Port Android: sin Steam, logros y estadísticas se leen de la consola.
++			if (!SteamManager.Initialized)
++			{
++				if (GameSettings.GameMode != GameMode.LSS || GameStateModel.NumOfRoundsPlayed <= 0)
++				{
++					InitializeDictionaries();
++					GameStateModel.ClientStats[GameStatType.SOUL_CAPTURED] = DwsAchievements.GetStat("SoulsCaptured");
++					GameStateModel.ClientStats[GameStatType.FRAG] = DwsAchievements.GetStat("NumFrags");
++					GameStateModel.ClientStats[GameStatType.ANTICHRIST] = DwsAchievements.GetStat("AntichristKillstreaks");
++					GameStateModel.ClientStats[GameStatType.DOUBLE_KILL] = DwsAchievements.GetStat("DoubleKills");
++					GameStateModel.ClientStats[GameStatType.MONSTER_KILL] = DwsAchievements.GetStat("MonsterKills");
++					foreach (AchievementModel value in GameStateModel.ClientAchievements.Values)
++					{
++						value.Achieved = DwsAchievements.IsUnlocked(value.AchievementId);
++					}
++					MonitorAchievementsSignal.Dispatch();
++				}
++				return;
++			}
+ 			if (SteamManager.Initialized && (GameSettings.GameMode != GameMode.LSS || GameStateModel.NumOfRoundsPlayed <= 0))
+ 			{
+ 				_gameId = new CGameID(SteamUtils.GetAppID());
+diff --git a/UnityProject/Assets/Scripts/Assembly-CSharp/com/mindshaft/overtime/command/ScreenFaderCommand.cs b/UnityProject/Assets/Scripts/Assembly-CSharp/com/mindshaft/overtime/command/ScreenFaderCommand.cs
+index 4ee2f33..3aeea29 100644
+--- a/UnityProject/Assets/Scripts/Assembly-CSharp/com/mindshaft/overtime/command/ScreenFaderCommand.cs
++++ b/UnityProject/Assets/Scripts/Assembly-CSharp/com/mindshaft/overtime/command/ScreenFaderCommand.cs
+@@ -38,8 +38,9 @@ namespace com.mindshaft.overtime.command
+ 
+ 		private void FadeCamera(GameObject screenFaderGo)
+ 		{
+-			GUITexture component = screenFaderGo.GetComponent<GUITexture>();
+-			component.pixelInset = new Rect(0f, 0f, Screen.width, Screen.height);
++			// Port Android: GUITexture ya no existe en Unity moderno; se usa una capa equivalente
++			ScreenFaderOverlay component = screenFaderGo.GetComponent<ScreenFaderOverlay>();
++			if (component == null) component = screenFaderGo.AddComponent<ScreenFaderOverlay>();
+ 			component.color = ((FadeType != FadeType.IN) ? Color.clear : Color.black);
+ 			Func<float, bool> endCondition = ((FadeType != FadeType.IN) ? ((Func<float, bool>)((float alpha) => alpha >= 0.95f)) : ((Func<float, bool>)((float alpha) => alpha <= 0.05f)));
+ 			component.enabled = true;
+@@ -48,7 +49,7 @@ namespace com.mindshaft.overtime.command
+ 			RoutineRunner.StartCoroutine(Fade(endCondition, component, fadeToColor));
+ 		}
+ 
+-		private IEnumerator Fade(Func<float, bool> endCondition, GUITexture guiTexture, Color fadeToColor)
++		private IEnumerator Fade(Func<float, bool> endCondition, ScreenFaderOverlay guiTexture, Color fadeToColor)
+ 		{
+ 			float currentLerpTime = 0f;
+ 			float perc = 0f;
+diff --git a/UnityProject/Assets/Scripts/Assembly-CSharp/com/mindshaft/overtime/command/SetPlayerOnFireCommand.cs b/UnityProject/Assets/Scripts/Assembly-CSharp/com/mindshaft/overtime/command/SetPlayerOnFireCommand.cs
+index ca78553..d301852 100644
+--- a/UnityProject/Assets/Scripts/Assembly-CSharp/com/mindshaft/overtime/command/SetPlayerOnFireCommand.cs
++++ b/UnityProject/Assets/Scripts/Assembly-CSharp/com/mindshaft/overtime/command/SetPlayerOnFireCommand.cs
+@@ -50,7 +50,10 @@ namespace com.mindshaft.overtime.command
+ 			while (timer < time && !playerMediator.View.IsDead && !GameStateModel.IsGameOver)
+ 			{
+ 				timer += Time.deltaTime;
+-				playerMediator.View.Health -= ((!playerMediator.View.IsReducedDamage) ? 0.0005f : 0.0005f);
++				if (!DwsCheats.InvulnerableIn(playerMediator.GameSettings.GameMode)) // Port Android: truco de invulnerabilidad
++				{
++					playerMediator.View.Health -= ((!playerMediator.View.IsReducedDamage) ? 0.0005f : 0.0005f);
++				}
+ 				if (!playerMediator.View.IsDead && playerMediator.View.Health < 1f)
+ 				{
+ 					bool slowDownTime = true;
+diff --git a/UnityProject/Assets/Scripts/Assembly-CSharp/com/mindshaft/overtime/command/StoreStatsAndAchievementsCommand.cs b/UnityProject/Assets/Scripts/Assembly-CSharp/com/mindshaft/overtime/command/StoreStatsAndAchievementsCommand.cs
+index d4c9fa2..91de2d6 100644
+--- a/UnityProject/Assets/Scripts/Assembly-CSharp/com/mindshaft/overtime/command/StoreStatsAndAchievementsCommand.cs
++++ b/UnityProject/Assets/Scripts/Assembly-CSharp/com/mindshaft/overtime/command/StoreStatsAndAchievementsCommand.cs
+@@ -16,11 +16,12 @@ namespace com.mindshaft.overtime.command
+ 
+ 		public override void Execute()
+ 		{
+-			if (!SteamManager.Initialized)
++			bool steam = SteamManager.Initialized; // Port Android: sin Steam se guarda en la consola
++			if (!steam && GameStatType == GameStatType.EOT_LEADERBOARD)
+ 			{
+ 				return;
+ 			}
+-			if (Application.isEditor)
++			if (steam && Application.isEditor)
+ 			{
+ 				foreach (Achievement value in Enum.GetValues(typeof(Achievement)))
+ 				{
+@@ -57,7 +58,11 @@ namespace com.mindshaft.overtime.command
+ 				text = "MonsterKills";
+ 				break;
+ 			}
+-			if (!string.IsNullOrEmpty(text))
++			if (!string.IsNullOrEmpty(text) && !steam)
++			{
++				DwsAchievements.SetStat(text, num);
++			}
++			else if (!string.IsNullOrEmpty(text))
+ 			{
+ 				GameUtilities.DebugLog("Setting Steam user stat " + text + ":" + num);
+ 				SteamUserStats.SetStat(text, num);
+diff --git a/UnityProject/Assets/Scripts/Assembly-CSharp/com/mindshaft/overtime/command/TakeScreenshotCommand.cs b/UnityProject/Assets/Scripts/Assembly-CSharp/com/mindshaft/overtime/command/TakeScreenshotCommand.cs
+index 2208e4f..987c7e6 100644
+--- a/UnityProject/Assets/Scripts/Assembly-CSharp/com/mindshaft/overtime/command/TakeScreenshotCommand.cs
++++ b/UnityProject/Assets/Scripts/Assembly-CSharp/com/mindshaft/overtime/command/TakeScreenshotCommand.cs
+@@ -31,11 +31,11 @@ namespace com.mindshaft.overtime.command
+ 			if (Application.isEditor)
+ 			{
+ 				string text = "D:\\GoogleDrive\\Google Drive\\Game Design\\Overtime - Demons With Shotguns\\Marketing\\Screen Shots\\In-Game Captures\\";
+-				Application.CaptureScreenshot(text + "dwsScreenshot-" + Prefix + "-" + DateTime.Now.ToString("MM-dd-yy-hh-mm-ss") + ".png");
++				ScreenCapture.CaptureScreenshot(text + "dwsScreenshot-" + Prefix + "-" + DateTime.Now.ToString("MM-dd-yy-hh-mm-ss") + ".png");
+ 			}
+ 			else
+ 			{
+-				Application.CaptureScreenshot("dwsScreenshot-" + Prefix + "-" + DateTime.Now.ToString("MM-dd-yy-hh-mm-ss") + ".png");
++				ScreenCapture.CaptureScreenshot("dwsScreenshot-" + Prefix + "-" + DateTime.Now.ToString("MM-dd-yy-hh-mm-ss") + ".png");
+ 			}
+ 			Release();
+ 		}
+diff --git a/UnityProject/Assets/Scripts/Assembly-CSharp/com/mindshaft/overtime/command/TeleportEntityCommand.cs b/UnityProject/Assets/Scripts/Assembly-CSharp/com/mindshaft/overtime/command/TeleportEntityCommand.cs
+index 44a0076..59c0d27 100644
+--- a/UnityProject/Assets/Scripts/Assembly-CSharp/com/mindshaft/overtime/command/TeleportEntityCommand.cs
++++ b/UnityProject/Assets/Scripts/Assembly-CSharp/com/mindshaft/overtime/command/TeleportEntityCommand.cs
+@@ -11,6 +11,12 @@ namespace com.mindshaft.overtime.command
+ 	{
+ 		private static List<GameObject> _gosToTeleport;
+ 
++		// Port Android: se vacía al reiniciar la escena.
++		public static void DwsClearStatics()
++		{
++			_gosToTeleport = null;
++		}
++
+ 		[Inject]
+ 		public GameObject GameObject { get; set; }
+ 
+diff --git a/UnityProject/Assets/Scripts/Assembly-CSharp/com/mindshaft/overtime/command/ZoomInSpriteCommand.cs b/UnityProject/Assets/Scripts/Assembly-CSharp/com/mindshaft/overtime/command/ZoomInSpriteCommand.cs
+index b204b79..d69ced2 100644
+--- a/UnityProject/Assets/Scripts/Assembly-CSharp/com/mindshaft/overtime/command/ZoomInSpriteCommand.cs
++++ b/UnityProject/Assets/Scripts/Assembly-CSharp/com/mindshaft/overtime/command/ZoomInSpriteCommand.cs
+@@ -9,6 +9,12 @@ namespace com.mindshaft.overtime.command
+ 	{
+ 		private static List<tk2dBaseSprite> _activelyZoomingSprites;
+ 
++		// Port Android: se vacía al reiniciar la escena.
++		public static void DwsClearStatics()
++		{
++			_activelyZoomingSprites = null;
++		}
++
+ 		[Inject]
+ 		public tk2dBaseSprite Sprite { get; set; }
+ 
+diff --git a/UnityProject/Assets/Scripts/Assembly-CSharp/com/mindshaft/overtime/controller/GamePlayerActions.cs b/UnityProject/Assets/Scripts/Assembly-CSharp/com/mindshaft/overtime/controller/GamePlayerActions.cs
+index 17c57ef..f020e93 100644
+--- a/UnityProject/Assets/Scripts/Assembly-CSharp/com/mindshaft/overtime/controller/GamePlayerActions.cs
++++ b/UnityProject/Assets/Scripts/Assembly-CSharp/com/mindshaft/overtime/controller/GamePlayerActions.cs
+@@ -89,6 +89,7 @@ namespace com.mindshaft.overtime.controller
+ 			gamePlayerActions.Dash.AddDefaultBinding(InputControlType.LeftBumper);
+ 			gamePlayerActions.Melee.AddDefaultBinding(InputControlType.RightBumper);
+ 			gamePlayerActions.Taunt.AddDefaultBinding(InputControlType.RightStickButton);
++			gamePlayerActions.Taunt.AddDefaultBinding(InputControlType.Select); // Port Android: la Retroid Pocket Classic no tiene sticks
+ 			gamePlayerActions.Pause.AddDefaultBinding(InputControlType.Start);
+ 			return gamePlayerActions;
+ 		}
+diff --git a/UnityProject/Assets/Scripts/Assembly-CSharp/com/mindshaft/overtime/fsm/OptionsMenuState.cs b/UnityProject/Assets/Scripts/Assembly-CSharp/com/mindshaft/overtime/fsm/OptionsMenuState.cs
+index e263d06..86dd641 100644
+--- a/UnityProject/Assets/Scripts/Assembly-CSharp/com/mindshaft/overtime/fsm/OptionsMenuState.cs
++++ b/UnityProject/Assets/Scripts/Assembly-CSharp/com/mindshaft/overtime/fsm/OptionsMenuState.cs
+@@ -25,6 +25,10 @@ namespace com.mindshaft.overtime.fsm
+ 
+ 		public void HandleInput(MainMenuMediator mediator)
+ 		{
++			if (DwsOverlay.Blocking)
++			{
++				return; // Port Android: el menú de extras está abierto
++			}
+ 			if (mediator.MenuDeviceListener.Back.WasPressed)
+ 			{
+ 				Exit(mediator, new TitleMenuState());
+@@ -69,6 +73,9 @@ namespace com.mindshaft.overtime.fsm
+ 				case 7:
+ 					mediator.View.FullscreenButton.SimulateClick();
+ 					break;
++				case 8:
++					DwsOverlay.OpenMenu(); // Port Android: Extras del port
++					break;
+ 				}
+ 			}
+ 		}
+diff --git a/UnityProject/Assets/Scripts/Assembly-CSharp/com/mindshaft/overtime/view/BoomstickMediator.cs b/UnityProject/Assets/Scripts/Assembly-CSharp/com/mindshaft/overtime/view/BoomstickMediator.cs
+index a23cb61..8be3fba 100644
+--- a/UnityProject/Assets/Scripts/Assembly-CSharp/com/mindshaft/overtime/view/BoomstickMediator.cs
++++ b/UnityProject/Assets/Scripts/Assembly-CSharp/com/mindshaft/overtime/view/BoomstickMediator.cs
+@@ -66,7 +66,14 @@ namespace com.mindshaft.overtime.view
+ 				Color projectileColor = ((!View.PlayerView.IsSatansSpawn) ? Color.white : new Color(1f, 0.1f, 0.1f, 1f));
+ 				float damageAmount = ((!View.PlayerView.IsSatansSpawn) ? DamageAmount : (DamageAmount * 10f));
+ 				ShotgunBlastSignal.Dispatch(new FireWeaponModel(numOfShells, View.BlastSprite, frameCount, View.VerticalDirection, View.HorizontalDirection, View.PlayerIndex, View.ProjectileType, SoundFx.SHOTGUN_BLAST, View.Wielder, ParentView.collider, View.Nozzle.transform.position, numOfBullets, (!View.PlayerView.IsGrounded) ? View.PushupRate : 0f, (!View.PlayerView.IsGrounded && !View.PlayerView.IsPossessed) ? View.PushbackRate : 0f, View.ParentSprite, projectileColor, damageAmount, OnProjectilesFired));
+-				AmmoCount--;
++				if (!DwsCheats.InfiniteAmmo || View.PlayerView.IsClone) // Port Android: truco de munición infinita
++				{
++					AmmoCount--;
++				}
++				if (!View.PlayerView.IsClone && View.PlayerView.GamePlayerActions != null)
++				{
++					AndroidRumble.Event(View.PlayerView.GamePlayerActions.Device, 0.09f, 0.7f); // Port Android
++				}
+ 				_shootTimer = View.ShootTime;
+ 				if (AmmoCount > 0 && base.gameObject.activeInHierarchy)
+ 				{
+diff --git a/UnityProject/Assets/Scripts/Assembly-CSharp/com/mindshaft/overtime/view/DmGameEndWindowMediator.cs b/UnityProject/Assets/Scripts/Assembly-CSharp/com/mindshaft/overtime/view/DmGameEndWindowMediator.cs
+index 8e784a0..d23f5ae 100644
+--- a/UnityProject/Assets/Scripts/Assembly-CSharp/com/mindshaft/overtime/view/DmGameEndWindowMediator.cs
++++ b/UnityProject/Assets/Scripts/Assembly-CSharp/com/mindshaft/overtime/view/DmGameEndWindowMediator.cs
+@@ -145,8 +145,8 @@ namespace com.mindshaft.overtime.view
+ 		{
+ 			PlaySoundFxSignal.Dispatch(new PlaySoundFxModel(SoundFx.EMPTY_CLIP, false, Vector3.one, SpatialBlend.TwoDee));
+ 			GameUtilities.GameStartAnalyticEvent(GameSettings);
+-			DestroyLingeringContextViews();
+-			Application.LoadLevel((GameSettings.GameMode != GameMode.LSS) ? GameSettings.Level : GameSettings.LevelRotation[0]);
++			// Port Android: reinicio limpio (ver DwsSceneRestart).
++			DwsSceneRestart.Restart((GameSettings.GameMode != GameMode.LSS) ? GameSettings.Level : GameSettings.LevelRotation[0], null, null);
+ 		}
+ 
+ 		private IEnumerator ViewDeltaTime()
+diff --git a/UnityProject/Assets/Scripts/Assembly-CSharp/com/mindshaft/overtime/view/GameEndWindowMediator.cs b/UnityProject/Assets/Scripts/Assembly-CSharp/com/mindshaft/overtime/view/GameEndWindowMediator.cs
+index bf78b28..8b8c2b1 100644
+--- a/UnityProject/Assets/Scripts/Assembly-CSharp/com/mindshaft/overtime/view/GameEndWindowMediator.cs
++++ b/UnityProject/Assets/Scripts/Assembly-CSharp/com/mindshaft/overtime/view/GameEndWindowMediator.cs
+@@ -25,6 +25,9 @@ namespace com.mindshaft.overtime.view
+ 		[Inject]
+ 		public GameSettings GameSettings { get; set; }
+ 
++		[Inject]
++		public EndOfTimesGameStateModel EotGameStateModel { get; set; }
++
+ 		[Inject]
+ 		public PlaySoundFxSignal PlaySoundFxSignal { get; set; }
+ 
+@@ -160,7 +163,8 @@ namespace com.mindshaft.overtime.view
+ 		public void OnRestartClick()
+ 		{
+ 			PlaySoundFxSignal.Dispatch(new PlaySoundFxModel(SoundFx.GUN_CLICK, false, Vector3.one, SpatialBlend.TwoDee));
+-			Application.LoadLevel(Application.loadedLevelName);
++			// Port Android: reinicio limpio (ver DwsSceneRestart).
++			DwsSceneRestart.Restart(Application.loadedLevelName, GameStateModel, EotGameStateModel);
+ 		}
+ 
+ 		public void OnNextClick()
+diff --git a/UnityProject/Assets/Scripts/Assembly-CSharp/com/mindshaft/overtime/view/MainMenuMediator.cs b/UnityProject/Assets/Scripts/Assembly-CSharp/com/mindshaft/overtime/view/MainMenuMediator.cs
+index fc5b568..4bc6d43 100644
+--- a/UnityProject/Assets/Scripts/Assembly-CSharp/com/mindshaft/overtime/view/MainMenuMediator.cs
++++ b/UnityProject/Assets/Scripts/Assembly-CSharp/com/mindshaft/overtime/view/MainMenuMediator.cs
+@@ -118,9 +118,10 @@ namespace com.mindshaft.overtime.view
+ 			View.CameraShakeOutlineTextMesh.text = text;
+ 			cameraShakeTextMesh.text = text;
+ 			tk2dTextMesh fullscreenTextMesh = View.FullscreenTextMesh;
+-			text = ((!GameSettings.IsFullscreen) ? "Fullscreen: Off" : "Fullscreen: On");
++			text = Loc.OptionLabel(); // Port Android: la opción de pantalla completa pasa a ser el idioma
+ 			View.FullscreenOutlineTextMesh.text = text;
+ 			fullscreenTextMesh.text = text;
++			DwsAddExtrasOption();
+ 			View.OnStartSignal.AddListener(OnStart);
+ 			View.OnEotSignal.AddListener(OnEot);
+ 			View.OnOptionsSignal.AddListener(OnOptions);
+@@ -531,13 +532,86 @@ namespace com.mindshaft.overtime.view
+ 
+ 		private void OnFullscreenChange()
+ 		{
+-			GameSettings.IsFullscreen = !GameSettings.IsFullscreen;
+-			tk2dTextMesh fullscreenTextMesh = View.FullscreenTextMesh;
+-			string text = ((!GameSettings.IsFullscreen) ? "Fullscreen: Off" : "Fullscreen: On");
++			// Port Android: cambia el idioma
++			Loc.SetSpanish(!Loc.Spanish);
++			string text = Loc.OptionLabel();
+ 			View.FullscreenOutlineTextMesh.text = text;
+-			fullscreenTextMesh.text = text;
+-			PlayerPrefs.SetInt(PlayerPrefsKeys.FullScreen.ToString(), Convert.ToInt16(GameSettings.IsFullscreen));
+-			GameUtilities.SetResolution(GameSettings.IsFullscreen);
++			View.FullscreenTextMesh.text = text;
++			DwsSetExtrasLabel();
++		}
++
++		// Port Android: entrada nueva "Extras del port" al final de Opciones. Se copia la de idioma y
++		// las nueve entradas se reparten en el mismo espacio que ocupaban las ocho originales.
++		private tk2dTextMesh _dwsExtrasText;
++
++		private tk2dTextMesh _dwsExtrasOutline;
++
++		private void DwsAddExtrasOption()
++		{
++			try
++			{
++				List<tk2dUIItem> items = View.OptionsUIItems;
++				List<GameObject> cursors = View.OptionsCursorIndices;
++				if (items.Count != 8 || cursors.Count != 8)
++				{
++					return;
++				}
++				GameObject src = View.FullscreenButton.gameObject;
++				GameObject button = UnityEngine.Object.Instantiate(src, src.transform.parent);
++				button.name = "DwsExtrasButton";
++				tk2dUIItem item = button.GetComponent<tk2dUIItem>();
++				if (item != null)
++				{
++					item.enabled = false; // no debe cambiar el idioma al tocarla
++				}
++				Transform textTr = button.transform.Find("ButtonGraphic/Text");
++				_dwsExtrasText = textTr != null ? textTr.GetComponent<tk2dTextMesh>() : null;
++				Transform outlineTr = textTr != null ? textTr.Find("Text 1") : null;
++				_dwsExtrasOutline = outlineTr != null ? outlineTr.GetComponent<tk2dTextMesh>() : null;
++				if (_dwsExtrasText == null)
++				{
++					UnityEngine.Object.Destroy(button);
++					return;
++				}
++				GameObject cursorSrc = cursors[7];
++				GameObject cursor = UnityEngine.Object.Instantiate(cursorSrc, cursorSrc.transform.parent);
++				cursor.name = "DwsExtrasCursorIndex";
++				float top = items[0].transform.localPosition.y;
++				float bottom = items[7].transform.localPosition.y;
++				float cursorOffset = cursors[0].transform.localPosition.y - top;
++				items.Add(item);
++				cursors.Add(cursor);
++				View.OptionsButtonTextMeshes.Add(_dwsExtrasText);
++				float step = (top - bottom) / 8f;
++				for (int i = 0; i < 9; i++)
++				{
++					Transform b = (i < 8) ? items[i].transform : button.transform;
++					Vector3 p = b.localPosition;
++					p.y = top - step * i;
++					b.localPosition = p;
++					Vector3 c = cursors[i].transform.localPosition;
++					c.y = p.y + cursorOffset;
++					cursors[i].transform.localPosition = c;
++				}
++				DwsSetExtrasLabel();
++			}
++			catch (Exception e)
++			{
++				DwsLog.Write("No se pudo añadir Extras a Opciones: " + e);
++			}
++		}
++
++		private void DwsSetExtrasLabel()
++		{
++			string label = Loc.Spanish ? "Extras del port" : "Port extras";
++			if (_dwsExtrasText != null)
++			{
++				_dwsExtrasText.text = label;
++			}
++			if (_dwsExtrasOutline != null)
++			{
++				_dwsExtrasOutline.text = label;
++			}
+ 		}
+ 
+ 		public void OnSpecificTarotCardToggle(int tarotCard)
+diff --git a/UnityProject/Assets/Scripts/Assembly-CSharp/com/mindshaft/overtime/view/PlayerMediator.cs b/UnityProject/Assets/Scripts/Assembly-CSharp/com/mindshaft/overtime/view/PlayerMediator.cs
+index 6978eda..7d05f8b 100644
+--- a/UnityProject/Assets/Scripts/Assembly-CSharp/com/mindshaft/overtime/view/PlayerMediator.cs
++++ b/UnityProject/Assets/Scripts/Assembly-CSharp/com/mindshaft/overtime/view/PlayerMediator.cs
+@@ -364,6 +364,10 @@ namespace com.mindshaft.overtime.view
+ 
+ 		private void TakeDamage(float damageAmount)
+ 		{
++			if (DwsCheats.InvulnerableIn(GameSettings.GameMode) && !View.IsClone)
++			{
++				return; // Port Android: truco de invulnerabilidad
++			}
+ 			if (!EotGameStateModel.IsBossDead)
+ 			{
+ 				View.Health -= damageAmount;
+diff --git a/UnityProject/Assets/Scripts/Assembly-CSharp/strange/extensions/promise/impl/Promise.cs b/UnityProject/Assets/Scripts/Assembly-CSharp/strange/extensions/promise/impl/Promise.cs
+index 18a92a8..1073e7e 100644
+--- a/UnityProject/Assets/Scripts/Assembly-CSharp/strange/extensions/promise/impl/Promise.cs
++++ b/UnityProject/Assets/Scripts/Assembly-CSharp/strange/extensions/promise/impl/Promise.cs
+@@ -94,31 +94,7 @@ namespace strange.extensions.promise.impl
+ 		[DebuggerBrowsable(DebuggerBrowsableState.Never)]
+ 		private Action<T> Listener__BackingField;
+ 
+-		protected event Action<T> Listener
+-		{
+-			add
+-			{
+-				Action<T> action = this.Listener;
+-				Action<T> action2;
+-				do
+-				{
+-					action2 = action;
+-					action = Interlocked.CompareExchange(ref this.Listener, (Action<T>)Delegate.Combine(action2, value), action);
+-				}
+-				while ((object)action != action2);
+-			}
+-			remove
+-			{
+-				Action<T> action = this.Listener;
+-				Action<T> action2;
+-				do
+-				{
+-					action2 = action;
+-					action = Interlocked.CompareExchange(ref this.Listener, (Action<T>)Delegate.Remove(action2, value), action);
+-				}
+-				while ((object)action != action2);
+-			}
+-		}
++		protected event Action<T> Listener;
+ 
+ 		public void Dispatch(T t)
+ 		{
+@@ -180,31 +156,7 @@ namespace strange.extensions.promise.impl
+ 		[DebuggerBrowsable(DebuggerBrowsableState.Never)]
+ 		private Action<T, U> Listener__BackingField;
+ 
+-		protected event Action<T, U> Listener
+-		{
+-			add
+-			{
+-				Action<T, U> action = this.Listener;
+-				Action<T, U> action2;
+-				do
+-				{
+-					action2 = action;
+-					action = Interlocked.CompareExchange(ref this.Listener, (Action<T, U>)Delegate.Combine(action2, value), action);
+-				}
+-				while ((object)action != action2);
+-			}
+-			remove
+-			{
+-				Action<T, U> action = this.Listener;
+-				Action<T, U> action2;
+-				do
+-				{
+-					action2 = action;
+-					action = Interlocked.CompareExchange(ref this.Listener, (Action<T, U>)Delegate.Remove(action2, value), action);
+-				}
+-				while ((object)action != action2);
+-			}
+-		}
++		protected event Action<T, U> Listener;
+ 
+ 		public void Dispatch(T t, U u)
+ 		{
+@@ -278,31 +230,7 @@ namespace strange.extensions.promise.impl
+ 		[DebuggerBrowsable(DebuggerBrowsableState.Never)]
+ 		private Action<T, U, V> Listener__BackingField;
+ 
+-		protected event Action<T, U, V> Listener
+-		{
+-			add
+-			{
+-				Action<T, U, V> action = this.Listener;
+-				Action<T, U, V> action2;
+-				do
+-				{
+-					action2 = action;
+-					action = Interlocked.CompareExchange(ref this.Listener, (Action<T, U, V>)Delegate.Combine(action2, value), action);
+-				}
+-				while ((object)action != action2);
+-			}
+-			remove
+-			{
+-				Action<T, U, V> action = this.Listener;
+-				Action<T, U, V> action2;
+-				do
+-				{
+-					action2 = action;
+-					action = Interlocked.CompareExchange(ref this.Listener, (Action<T, U, V>)Delegate.Remove(action2, value), action);
+-				}
+-				while ((object)action != action2);
+-			}
+-		}
++		protected event Action<T, U, V> Listener;
+ 
+ 		public void Dispatch(T t, U u, V v)
+ 		{
+@@ -379,31 +307,7 @@ namespace strange.extensions.promise.impl
+ 		[DebuggerBrowsable(DebuggerBrowsableState.Never)]
+ 		private Action<T, U, V, W> Listener__BackingField;
+ 
+-		protected event Action<T, U, V, W> Listener
+-		{
+-			add
+-			{
+-				Action<T, U, V, W> action = this.Listener;
+-				Action<T, U, V, W> action2;
+-				do
+-				{
+-					action2 = action;
+-					action = Interlocked.CompareExchange(ref this.Listener, (Action<T, U, V, W>)Delegate.Combine(action2, value), action);
+-				}
+-				while ((object)action != action2);
+-			}
+-			remove
+-			{
+-				Action<T, U, V, W> action = this.Listener;
+-				Action<T, U, V, W> action2;
+-				do
+-				{
+-					action2 = action;
+-					action = Interlocked.CompareExchange(ref this.Listener, (Action<T, U, V, W>)Delegate.Remove(action2, value), action);
+-				}
+-				while ((object)action != action2);
+-			}
+-		}
++		protected event Action<T, U, V, W> Listener;
+ 
+ 		public void Dispatch(T t, U u, V v, W w)
+ 		{
+diff --git a/UnityProject/Assets/Scripts/Assembly-CSharp/strange/extensions/signal/impl/Signal.cs b/UnityProject/Assets/Scripts/Assembly-CSharp/strange/extensions/signal/impl/Signal.cs
+index 5ed02db..e6ac494 100644
+--- a/UnityProject/Assets/Scripts/Assembly-CSharp/strange/extensions/signal/impl/Signal.cs
++++ b/UnityProject/Assets/Scripts/Assembly-CSharp/strange/extensions/signal/impl/Signal.cs
+@@ -155,57 +155,9 @@ namespace strange.extensions.signal.impl
+ 			}
+ 		}
+ 
+-		public event Action<T> Listener
+-		{
+-			add
+-			{
+-				Action<T> action = this.Listener;
+-				Action<T> action2;
+-				do
+-				{
+-					action2 = action;
+-					action = Interlocked.CompareExchange(ref this.Listener, (Action<T>)Delegate.Combine(action2, value), action);
+-				}
+-				while ((object)action != action2);
+-			}
+-			remove
+-			{
+-				Action<T> action = this.Listener;
+-				Action<T> action2;
+-				do
+-				{
+-					action2 = action;
+-					action = Interlocked.CompareExchange(ref this.Listener, (Action<T>)Delegate.Remove(action2, value), action);
+-				}
+-				while ((object)action != action2);
+-			}
+-		}
++		public event Action<T> Listener;
+ 
+-		public event Action<T> OnceListener
+-		{
+-			add
+-			{
+-				Action<T> action = this.OnceListener;
+-				Action<T> action2;
+-				do
+-				{
+-					action2 = action;
+-					action = Interlocked.CompareExchange(ref this.OnceListener, (Action<T>)Delegate.Combine(action2, value), action);
+-				}
+-				while ((object)action != action2);
+-			}
+-			remove
+-			{
+-				Action<T> action = this.OnceListener;
+-				Action<T> action2;
+-				do
+-				{
+-					action2 = action;
+-					action = Interlocked.CompareExchange(ref this.OnceListener, (Action<T>)Delegate.Remove(action2, value), action);
+-				}
+-				while ((object)action != action2);
+-			}
+-		}
++		public event Action<T> OnceListener;
+ 
+ 		public void AddListener(Action<T> callback)
+ 		{
+@@ -285,57 +237,9 @@ namespace strange.extensions.signal.impl
+ 			}
+ 		}
+ 
+-		public event Action<T, U> Listener
+-		{
+-			add
+-			{
+-				Action<T, U> action = this.Listener;
+-				Action<T, U> action2;
+-				do
+-				{
+-					action2 = action;
+-					action = Interlocked.CompareExchange(ref this.Listener, (Action<T, U>)Delegate.Combine(action2, value), action);
+-				}
+-				while ((object)action != action2);
+-			}
+-			remove
+-			{
+-				Action<T, U> action = this.Listener;
+-				Action<T, U> action2;
+-				do
+-				{
+-					action2 = action;
+-					action = Interlocked.CompareExchange(ref this.Listener, (Action<T, U>)Delegate.Remove(action2, value), action);
+-				}
+-				while ((object)action != action2);
+-			}
+-		}
++		public event Action<T, U> Listener;
+ 
+-		public event Action<T, U> OnceListener
+-		{
+-			add
+-			{
+-				Action<T, U> action = this.OnceListener;
+-				Action<T, U> action2;
+-				do
+-				{
+-					action2 = action;
+-					action = Interlocked.CompareExchange(ref this.OnceListener, (Action<T, U>)Delegate.Combine(action2, value), action);
+-				}
+-				while ((object)action != action2);
+-			}
+-			remove
+-			{
+-				Action<T, U> action = this.OnceListener;
+-				Action<T, U> action2;
+-				do
+-				{
+-					action2 = action;
+-					action = Interlocked.CompareExchange(ref this.OnceListener, (Action<T, U>)Delegate.Remove(action2, value), action);
+-				}
+-				while ((object)action != action2);
+-			}
+-		}
++		public event Action<T, U> OnceListener;
+ 
+ 		public void AddListener(Action<T, U> callback)
+ 		{
+@@ -416,57 +320,9 @@ namespace strange.extensions.signal.impl
+ 			}
+ 		}
+ 
+-		public event Action<T, U, V> Listener
+-		{
+-			add
+-			{
+-				Action<T, U, V> action = this.Listener;
+-				Action<T, U, V> action2;
+-				do
+-				{
+-					action2 = action;
+-					action = Interlocked.CompareExchange(ref this.Listener, (Action<T, U, V>)Delegate.Combine(action2, value), action);
+-				}
+-				while ((object)action != action2);
+-			}
+-			remove
+-			{
+-				Action<T, U, V> action = this.Listener;
+-				Action<T, U, V> action2;
+-				do
+-				{
+-					action2 = action;
+-					action = Interlocked.CompareExchange(ref this.Listener, (Action<T, U, V>)Delegate.Remove(action2, value), action);
+-				}
+-				while ((object)action != action2);
+-			}
+-		}
++		public event Action<T, U, V> Listener;
+ 
+-		public event Action<T, U, V> OnceListener
+-		{
+-			add
+-			{
+-				Action<T, U, V> action = this.OnceListener;
+-				Action<T, U, V> action2;
+-				do
+-				{
+-					action2 = action;
+-					action = Interlocked.CompareExchange(ref this.OnceListener, (Action<T, U, V>)Delegate.Combine(action2, value), action);
+-				}
+-				while ((object)action != action2);
+-			}
+-			remove
+-			{
+-				Action<T, U, V> action = this.OnceListener;
+-				Action<T, U, V> action2;
+-				do
+-				{
+-					action2 = action;
+-					action = Interlocked.CompareExchange(ref this.OnceListener, (Action<T, U, V>)Delegate.Remove(action2, value), action);
+-				}
+-				while ((object)action != action2);
+-			}
+-		}
++		public event Action<T, U, V> OnceListener;
+ 
+ 		public void AddListener(Action<T, U, V> callback)
+ 		{
+@@ -548,57 +404,9 @@ namespace strange.extensions.signal.impl
+ 			}
+ 		}
+ 
+-		public event Action<T, U, V, W> Listener
+-		{
+-			add
+-			{
+-				Action<T, U, V, W> action = this.Listener;
+-				Action<T, U, V, W> action2;
+-				do
+-				{
+-					action2 = action;
+-					action = Interlocked.CompareExchange(ref this.Listener, (Action<T, U, V, W>)Delegate.Combine(action2, value), action);
+-				}
+-				while ((object)action != action2);
+-			}
+-			remove
+-			{
+-				Action<T, U, V, W> action = this.Listener;
+-				Action<T, U, V, W> action2;
+-				do
+-				{
+-					action2 = action;
+-					action = Interlocked.CompareExchange(ref this.Listener, (Action<T, U, V, W>)Delegate.Remove(action2, value), action);
+-				}
+-				while ((object)action != action2);
+-			}
+-		}
++		public event Action<T, U, V, W> Listener;
+ 
+-		public event Action<T, U, V, W> OnceListener
+-		{
+-			add
+-			{
+-				Action<T, U, V, W> action = this.OnceListener;
+-				Action<T, U, V, W> action2;
+-				do
+-				{
+-					action2 = action;
+-					action = Interlocked.CompareExchange(ref this.OnceListener, (Action<T, U, V, W>)Delegate.Combine(action2, value), action);
+-				}
+-				while ((object)action != action2);
+-			}
+-			remove
+-			{
+-				Action<T, U, V, W> action = this.OnceListener;
+-				Action<T, U, V, W> action2;
+-				do
+-				{
+-					action2 = action;
+-					action = Interlocked.CompareExchange(ref this.OnceListener, (Action<T, U, V, W>)Delegate.Remove(action2, value), action);
+-				}
+-				while ((object)action != action2);
+-			}
+-		}
++		public event Action<T, U, V, W> OnceListener;
+ 
+ 		public void AddListener(Action<T, U, V, W> callback)
+ 		{
+diff --git a/UnityProject/Assets/Scripts/Assembly-CSharp/tk2dTextGeomGen.cs b/UnityProject/Assets/Scripts/Assembly-CSharp/tk2dTextGeomGen.cs
+index ee41908..343d33b 100644
+--- a/UnityProject/Assets/Scripts/Assembly-CSharp/tk2dTextGeomGen.cs
++++ b/UnityProject/Assets/Scripts/Assembly-CSharp/tk2dTextGeomGen.cs
+@@ -60,7 +60,7 @@ public static class tk2dTextGeomGen
+ 			{
+ 				b = Mathf.Max(num, b);
+ 				num = 0f;
+-				num2 -= (fontInst.lineHeight + textMeshData.lineSpacing) * textMeshData.scale.y;
++				num2 -= (fontInst.lineHeight + textMeshData.lineSpacing) * (textMeshData.scale.y * textMeshData.Fit);
+ 				continue;
+ 			}
+ 			if (textMeshData.inlineStyling && num4 == 94 && i + 1 < str.Length)
+@@ -110,7 +110,7 @@ public static class tk2dTextGeomGen
+ 			{
+ 				num4 = 94;
+ 			}
+-			num += (tk2dFontChar2.advance + textMeshData.spacing) * textMeshData.scale.x;
++			num += (tk2dFontChar2.advance + textMeshData.spacing) * (textMeshData.scale.x * textMeshData.Fit);
+ 			if (textMeshData.kerning && i < str.Length - 1)
+ 			{
+ 				tk2dFontKerning[] kerning = fontInst.kerning;
+@@ -118,7 +118,7 @@ public static class tk2dTextGeomGen
+ 				{
+ 					if (tk2dFontKerning2.c0 == str[i] && tk2dFontKerning2.c1 == str[i + 1])
+ 					{
+-						num += tk2dFontKerning2.amount * textMeshData.scale.x;
++						num += tk2dFontKerning2.amount * (textMeshData.scale.x * textMeshData.Fit);
+ 						break;
+ 					}
+ 				}
+@@ -126,7 +126,7 @@ public static class tk2dTextGeomGen
+ 			num3++;
+ 		}
+ 		b = Mathf.Max(num, b);
+-		num2 -= (fontInst.lineHeight + textMeshData.lineSpacing) * textMeshData.scale.y;
++		num2 -= (fontInst.lineHeight + textMeshData.lineSpacing) * (textMeshData.scale.y * textMeshData.Fit);
+ 		return new Vector2(b, num2);
+ 	}
+ 
+@@ -135,7 +135,7 @@ public static class tk2dTextGeomGen
+ 		tk2dTextMeshData textMeshData = geomData.textMeshData;
+ 		tk2dFontData fontInst = geomData.fontInst;
+ 		int num = (int)textMeshData.anchor / 3;
+-		float num2 = (fontInst.lineHeight + textMeshData.lineSpacing) * textMeshData.scale.y;
++		float num2 = (fontInst.lineHeight + textMeshData.lineSpacing) * (textMeshData.scale.y * textMeshData.Fit);
+ 		switch (num)
+ 		{
+ 		case 0:
+@@ -145,7 +145,7 @@ public static class tk2dTextGeomGen
+ 			float num3 = (0f - textHeight) / 2f - num2;
+ 			if (fontInst.version >= 2)
+ 			{
+-				float num4 = fontInst.texelSize.y * textMeshData.scale.y;
++				float num4 = fontInst.texelSize.y * (textMeshData.scale.y * textMeshData.Fit);
+ 				return Mathf.Floor(num3 / num4) * num4;
+ 			}
+ 			return num3;
+@@ -170,7 +170,7 @@ public static class tk2dTextGeomGen
+ 			float num = (0f - lineWidth) / 2f;
+ 			if (fontInst.version >= 2)
+ 			{
+-				float num2 = fontInst.texelSize.x * textMeshData.scale.x;
++				float num2 = fontInst.texelSize.x * (textMeshData.scale.x * textMeshData.Fit);
+ 				return Mathf.Floor(num / num2) * num2;
+ 			}
+ 			return num;
+@@ -407,7 +407,7 @@ public static class tk2dTextGeomGen
+ 				}
+ 				num4 = num3;
+ 				num = 0f;
+-				num2 -= (fontInst.lineHeight + textMeshData.lineSpacing) * textMeshData.scale.y;
++				num2 -= (fontInst.lineHeight + textMeshData.lineSpacing) * (textMeshData.scale.y * textMeshData.Fit);
+ 				continue;
+ 			}
+ 			if (textMeshData.inlineStyling && num5 == 94)
+@@ -419,10 +419,10 @@ public static class tk2dTextGeomGen
+ 				}
+ 				i++;
+ 			}
+-			pos[offset + num3 * 4] = new Vector3(num + tk2dFontChar2.p0.x * textMeshData.scale.x, yAnchorForHeight + num2 + tk2dFontChar2.p0.y * textMeshData.scale.y, 0f);
+-			pos[offset + num3 * 4 + 1] = new Vector3(num + tk2dFontChar2.p1.x * textMeshData.scale.x, yAnchorForHeight + num2 + tk2dFontChar2.p0.y * textMeshData.scale.y, 0f);
+-			pos[offset + num3 * 4 + 2] = new Vector3(num + tk2dFontChar2.p0.x * textMeshData.scale.x, yAnchorForHeight + num2 + tk2dFontChar2.p1.y * textMeshData.scale.y, 0f);
+-			pos[offset + num3 * 4 + 3] = new Vector3(num + tk2dFontChar2.p1.x * textMeshData.scale.x, yAnchorForHeight + num2 + tk2dFontChar2.p1.y * textMeshData.scale.y, 0f);
++			pos[offset + num3 * 4] = new Vector3(num + tk2dFontChar2.p0.x * (textMeshData.scale.x * textMeshData.Fit), yAnchorForHeight + num2 + tk2dFontChar2.p0.y * (textMeshData.scale.y * textMeshData.Fit), 0f);
++			pos[offset + num3 * 4 + 1] = new Vector3(num + tk2dFontChar2.p1.x * (textMeshData.scale.x * textMeshData.Fit), yAnchorForHeight + num2 + tk2dFontChar2.p0.y * (textMeshData.scale.y * textMeshData.Fit), 0f);
++			pos[offset + num3 * 4 + 2] = new Vector3(num + tk2dFontChar2.p0.x * (textMeshData.scale.x * textMeshData.Fit), yAnchorForHeight + num2 + tk2dFontChar2.p1.y * (textMeshData.scale.y * textMeshData.Fit), 0f);
++			pos[offset + num3 * 4 + 3] = new Vector3(num + tk2dFontChar2.p1.x * (textMeshData.scale.x * textMeshData.Fit), yAnchorForHeight + num2 + tk2dFontChar2.p1.y * (textMeshData.scale.y * textMeshData.Fit), 0f);
+ 			if (tk2dFontChar2.flipped)
+ 			{
+ 				uv[offset + num3 * 4] = new Vector2(tk2dFontChar2.uv1.x, tk2dFontChar2.uv1.y);
+@@ -459,7 +459,7 @@ public static class tk2dTextGeomGen
+ 				color[offset + num3 * 4 + 2] = meshBottomColor;
+ 				color[offset + num3 * 4 + 3] = meshBottomColor;
+ 			}
+-			num += (tk2dFontChar2.advance + textMeshData.spacing) * textMeshData.scale.x;
++			num += (tk2dFontChar2.advance + textMeshData.spacing) * (textMeshData.scale.x * textMeshData.Fit);
+ 			if (textMeshData.kerning && i < formattedText.Length - 1)
+ 			{
+ 				tk2dFontKerning[] kerning = fontInst.kerning;
+@@ -467,7 +467,7 @@ public static class tk2dTextGeomGen
+ 				{
+ 					if (tk2dFontKerning2.c0 == formattedText[i] && tk2dFontKerning2.c1 == formattedText[i + 1])
+ 					{
+-						num += tk2dFontKerning2.amount * textMeshData.scale.x;
++						num += tk2dFontKerning2.amount * (textMeshData.scale.x * textMeshData.Fit);
+ 						break;
+ 					}
+ 				}
+diff --git a/UnityProject/Assets/Scripts/Assembly-CSharp/tk2dTextMesh.cs b/UnityProject/Assets/Scripts/Assembly-CSharp/tk2dTextMesh.cs
+index aefe11d..b073c65 100644
+--- a/UnityProject/Assets/Scripts/Assembly-CSharp/tk2dTextMesh.cs
++++ b/UnityProject/Assets/Scripts/Assembly-CSharp/tk2dTextMesh.cs
+@@ -160,6 +160,7 @@ public class tk2dTextMesh : MonoBehaviour, ISpriteCollectionForceBuild
+ 		{
+ 			UpgradeData();
+ 			data.text = value;
++			EnsureLocCapacity();
+ 			SetNeedUpdate(UpdateFlags.UpdateText);
+ 		}
+ 	}
+@@ -422,9 +423,28 @@ public class tk2dTextMesh : MonoBehaviour, ISpriteCollectionForceBuild
+ 		return _targetString;
+ 	}
+ 
++	public void RefreshLoc()
++	{
++		EnsureLocCapacity();
++		SetNeedUpdate(UpdateFlags.UpdateText);
++	}
++
++	private void EnsureLocCapacity()
++	{
++		int needed = Loc.T(data.text).Length;
++		if (needed > data.maxChars)
++		{
++			data.maxChars = needed;
++			SetNeedUpdate(UpdateFlags.UpdateBuffers);
++		}
++	}
++
+ 	private void FormatText()
+ 	{
+-		FormatText(ref _formattedText, data.text);
++		// Port Android: se muestra en castellano sin alterar el texto que usa la lógica
++		string shown = Loc.T(data.text);
++		if (shown.Length > data.maxChars) data.maxChars = shown.Length;
++		FormatText(ref _formattedText, shown);
+ 	}
+ 
+ 	private void FormatText(ref string _targetString, string _source)
+diff --git a/UnityProject/Assets/Scripts/Assembly-CSharp/tk2dTextMeshData.cs b/UnityProject/Assets/Scripts/Assembly-CSharp/tk2dTextMeshData.cs
+index 0844c2f..3ecab9d 100644
+--- a/UnityProject/Assets/Scripts/Assembly-CSharp/tk2dTextMeshData.cs
++++ b/UnityProject/Assets/Scripts/Assembly-CSharp/tk2dTextMeshData.cs
+@@ -37,4 +37,9 @@ public class tk2dTextMeshData
+ 	public float spacing;
+ 
+ 	public float lineSpacing;
++
++	[NonSerialized]
++	public float locFit;
++
++	public float Fit { get { return locFit > 0f ? locFit : 1f; } }
+ }
+diff --git a/UnityProject/Assets/Scripts/Assembly-CSharp/tk2dTileMapDemoPlayer.cs b/UnityProject/Assets/Scripts/Assembly-CSharp/tk2dTileMapDemoPlayer.cs
+index 6b6005d..e965679 100644
+--- a/UnityProject/Assets/Scripts/Assembly-CSharp/tk2dTileMapDemoPlayer.cs
++++ b/UnityProject/Assets/Scripts/Assembly-CSharp/tk2dTileMapDemoPlayer.cs
+@@ -44,7 +44,7 @@ public class tk2dTileMapDemoPlayer : MonoBehaviour
+ 		textMesh.transform.parent = null;
+ 		textMeshLabel.text = "instructions";
+ 		textMeshLabel.Commit();
+-		if (Application.platform == RuntimePlatform.WindowsEditor || Application.platform == RuntimePlatform.WindowsPlayer || Application.platform == RuntimePlatform.WindowsWebPlayer || Application.platform == RuntimePlatform.OSXEditor || Application.platform == RuntimePlatform.OSXPlayer || Application.platform == RuntimePlatform.OSXWebPlayer || Application.platform == RuntimePlatform.OSXDashboardPlayer)
++		if (Application.platform == RuntimePlatform.WindowsEditor || Application.platform == RuntimePlatform.WindowsPlayer || Application.platform == (RuntimePlatform)5 || Application.platform == RuntimePlatform.OSXEditor || Application.platform == RuntimePlatform.OSXPlayer || Application.platform == (RuntimePlatform)3 || Application.platform == (RuntimePlatform)4)
+ 		{
+ 			textMesh.text = "LEFT ARROW / RIGHT ARROW";
+ 		}
+diff --git a/UnityProject/Assets/Scripts/Assembly-UnityScript/Properties/AssemblyInfo.cs b/UnityProject/Assets/Scripts/Assembly-UnityScript/Properties/AssemblyInfo.cs
+deleted file mode 100644
+index bbd7eef..0000000
+--- a/UnityProject/Assets/Scripts/Assembly-UnityScript/Properties/AssemblyInfo.cs
++++ /dev/null
+@@ -1,5 +0,0 @@
+-using System.Diagnostics;
+-using System.Reflection;
+-using System.Runtime.CompilerServices;
+-
+-[assembly: AssemblyVersion("0.0.0.0")]
+diff --git a/UnityProject/Assets/Shader/Hidden_Grayscale Effect.shader b/UnityProject/Assets/Shader/Hidden_Grayscale Effect.shader
+index 9685db5..c1de098 100644
+--- a/UnityProject/Assets/Shader/Hidden_Grayscale Effect.shader	
++++ b/UnityProject/Assets/Shader/Hidden_Grayscale Effect.shader	
+@@ -1,58 +1,29 @@
++// Reescrito para el port de Android (efecto de escala de grises de Standard Assets)
+ Shader "Hidden/Grayscale Effect" {
+ 	Properties {
+-		_EffectAmount ("Effect Amount", Range(0, 1)) = 1
+ 		_MainTex ("Base (RGB)", 2D) = "white" {}
+ 		_RampTex ("Base (RGB)", 2D) = "grayscaleRamp" {}
+ 	}
+-	//DummyShaderTextExporter
+-	SubShader{
+-		Tags { "RenderType"="Opaque" }
+-		LOD 200
+-
+-		Pass
+-		{
+-			HLSLPROGRAM
+-			#pragma vertex vert
++	SubShader {
++		Pass {
++			ZTest Always Cull Off ZWrite Off
++			CGPROGRAM
++			#pragma vertex vert_img
+ 			#pragma fragment frag
+-
+-			float4x4 unity_ObjectToWorld;
+-			float4x4 unity_MatrixVP;
+-			float4 _MainTex_ST;
+-
+-			struct Vertex_Stage_Input
+-			{
+-				float4 pos : POSITION;
+-				float2 uv : TEXCOORD0;
+-			};
+-
+-			struct Vertex_Stage_Output
+-			{
+-				float2 uv : TEXCOORD0;
+-				float4 pos : SV_POSITION;
+-			};
+-
+-			Vertex_Stage_Output vert(Vertex_Stage_Input input)
+-			{
+-				Vertex_Stage_Output output;
+-				output.uv = (input.uv.xy * _MainTex_ST.xy) + _MainTex_ST.zw;
+-				output.pos = mul(unity_MatrixVP, mul(unity_ObjectToWorld, input.pos));
++			#include "UnityCG.cginc"
++			uniform sampler2D _MainTex;
++			uniform sampler2D _RampTex;
++			uniform half _RampOffset;
++			fixed4 frag (v2f_img i) : SV_Target {
++				fixed4 original = tex2D(_MainTex, i.uv);
++				fixed grayscale = Luminance(original.rgb);
++				half2 remap = half2 (grayscale + _RampOffset, .5);
++				fixed4 output = tex2D(_RampTex, remap);
++				output.a = original.a;
+ 				return output;
+ 			}
+-
+-			Texture2D<float4> _MainTex;
+-			SamplerState sampler_MainTex;
+-
+-			struct Fragment_Stage_Input
+-			{
+-				float2 uv : TEXCOORD0;
+-			};
+-
+-			float4 frag(Fragment_Stage_Input input) : SV_TARGET
+-			{
+-				return _MainTex.Sample(sampler_MainTex, input.uv.xy);
+-			}
+-
+-			ENDHLSL
++			ENDCG
+ 		}
+ 	}
+-}
+\ No newline at end of file
++	Fallback off
++}
+diff --git a/UnityProject/Assets/Shader/tk2d_LitBlendVertexColor.shader b/UnityProject/Assets/Shader/tk2d_LitBlendVertexColor.shader
+index a8b7a64..4628eb4 100644
+--- a/UnityProject/Assets/Shader/tk2d_LitBlendVertexColor.shader
++++ b/UnityProject/Assets/Shader/tk2d_LitBlendVertexColor.shader
+@@ -1,57 +1,23 @@
++// Reescrito para el port de Android (tk2d iluminado, transparente)
+ Shader "tk2d/LitBlendVertexColor" {
+ 	Properties {
+-		_MainTex ("Base (RGB)", 2D) = "white" {}
++		_MainTex ("Base (RGB) Trans (A)", 2D) = "white" {}
+ 	}
+-	//DummyShaderTextExporter
+-	SubShader{
+-		Tags { "RenderType"="Opaque" }
+-		LOD 200
+-
+-		Pass
+-		{
+-			HLSLPROGRAM
+-			#pragma vertex vert
+-			#pragma fragment frag
+-
+-			float4x4 unity_ObjectToWorld;
+-			float4x4 unity_MatrixVP;
+-			float4 _MainTex_ST;
+-
+-			struct Vertex_Stage_Input
+-			{
+-				float4 pos : POSITION;
+-				float2 uv : TEXCOORD0;
+-			};
+-
+-			struct Vertex_Stage_Output
+-			{
+-				float2 uv : TEXCOORD0;
+-				float4 pos : SV_POSITION;
+-			};
+-
+-			Vertex_Stage_Output vert(Vertex_Stage_Input input)
+-			{
+-				Vertex_Stage_Output output;
+-				output.uv = (input.uv.xy * _MainTex_ST.xy) + _MainTex_ST.zw;
+-				output.pos = mul(unity_MatrixVP, mul(unity_ObjectToWorld, input.pos));
+-				return output;
+-			}
+-
+-			Texture2D<float4> _MainTex;
+-			SamplerState sampler_MainTex;
+-
+-			struct Fragment_Stage_Input
+-			{
+-				float2 uv : TEXCOORD0;
+-			};
+-
+-			float4 frag(Fragment_Stage_Input input) : SV_TARGET
+-			{
+-				return _MainTex.Sample(sampler_MainTex, input.uv.xy);
+-			}
+-
+-			ENDHLSL
++	SubShader {
++		Tags { "Queue"="Transparent" "IgnoreProjector"="True" "RenderType"="Transparent" }
++		ZWrite Off Cull Off
++		Blend SrcAlpha OneMinusSrcAlpha
++		LOD 110
++		CGPROGRAM
++		#pragma surface surf Lambert alpha:blend
++		sampler2D _MainTex;
++		struct Input { float2 uv_MainTex; fixed4 color : COLOR; };
++		void surf (Input IN, inout SurfaceOutput o) {
++			fixed4 c = tex2D(_MainTex, IN.uv_MainTex) * IN.color;
++			o.Albedo = c.rgb;
++			o.Alpha = c.a;
+ 		}
++		ENDCG
+ 	}
+ 	Fallback "tk2d/BlendVertexColor"
+-}
+\ No newline at end of file
++}
+diff --git a/UnityProject/Assets/Shader/tk2d_LitCutoutVertexColor.shader b/UnityProject/Assets/Shader/tk2d_LitCutoutVertexColor.shader
+index 07d48e0..98adede 100644
+--- a/UnityProject/Assets/Shader/tk2d_LitCutoutVertexColor.shader
++++ b/UnityProject/Assets/Shader/tk2d_LitCutoutVertexColor.shader
+@@ -1,58 +1,23 @@
++// Reescrito para el port de Android (tk2d iluminado, recorte)
+ Shader "tk2d/LitCutoutVertexColor" {
+ 	Properties {
+-		_MainTex ("Base (RGB)", 2D) = "white" {}
+-		_Cutoff ("Alpha cutoff", Range(0, 1)) = 0.5
++		_MainTex ("Base (RGB) Trans (A)", 2D) = "white" {}
++		_Cutoff ("Alpha cutoff", Range(0,1)) = 0.5
+ 	}
+-	//DummyShaderTextExporter
+-	SubShader{
+-		Tags { "RenderType"="Opaque" }
+-		LOD 200
+-
+-		Pass
+-		{
+-			HLSLPROGRAM
+-			#pragma vertex vert
+-			#pragma fragment frag
+-
+-			float4x4 unity_ObjectToWorld;
+-			float4x4 unity_MatrixVP;
+-			float4 _MainTex_ST;
+-
+-			struct Vertex_Stage_Input
+-			{
+-				float4 pos : POSITION;
+-				float2 uv : TEXCOORD0;
+-			};
+-
+-			struct Vertex_Stage_Output
+-			{
+-				float2 uv : TEXCOORD0;
+-				float4 pos : SV_POSITION;
+-			};
+-
+-			Vertex_Stage_Output vert(Vertex_Stage_Input input)
+-			{
+-				Vertex_Stage_Output output;
+-				output.uv = (input.uv.xy * _MainTex_ST.xy) + _MainTex_ST.zw;
+-				output.pos = mul(unity_MatrixVP, mul(unity_ObjectToWorld, input.pos));
+-				return output;
+-			}
+-
+-			Texture2D<float4> _MainTex;
+-			SamplerState sampler_MainTex;
+-
+-			struct Fragment_Stage_Input
+-			{
+-				float2 uv : TEXCOORD0;
+-			};
+-
+-			float4 frag(Fragment_Stage_Input input) : SV_TARGET
+-			{
+-				return _MainTex.Sample(sampler_MainTex, input.uv.xy);
+-			}
+-
+-			ENDHLSL
++	SubShader {
++		Tags { "Queue"="AlphaTest" "IgnoreProjector"="True" "RenderType"="TransparentCutout" }
++		Cull Off
++		LOD 110
++		CGPROGRAM
++		#pragma surface surf Lambert alphatest:_Cutoff
++		sampler2D _MainTex;
++		struct Input { float2 uv_MainTex; fixed4 color : COLOR; };
++		void surf (Input IN, inout SurfaceOutput o) {
++			fixed4 c = tex2D(_MainTex, IN.uv_MainTex) * IN.color;
++			o.Albedo = c.rgb;
++			o.Alpha = c.a;
+ 		}
++		ENDCG
+ 	}
+-	Fallback "tk2d/BlendVertexColor"
+-}
+\ No newline at end of file
++	Fallback "Legacy Shaders/Transparent/Cutout/VertexLit"
++}
+diff --git a/UnityProject/Assets/Shader/tk2d_PremulVertexColor.shader b/UnityProject/Assets/Shader/tk2d_PremulVertexColor.shader
+index a306dfc..8d6c72b 100644
+--- a/UnityProject/Assets/Shader/tk2d_PremulVertexColor.shader
++++ b/UnityProject/Assets/Shader/tk2d_PremulVertexColor.shader
+@@ -1,56 +1,35 @@
++// Reescrito para el port de Android (tk2d unlit con color de vértice)
+ Shader "tk2d/PremulVertexColor" {
+ 	Properties {
+ 		_MainTex ("Base (RGB) Trans (A)", 2D) = "white" {}
+ 	}
+-	//DummyShaderTextExporter
+-	SubShader{
+-		Tags { "RenderType"="Opaque" }
+-		LOD 200
+-
+-		Pass
+-		{
+-			HLSLPROGRAM
++	SubShader {
++		Tags { "Queue"="Transparent" "IgnoreProjector"="True" "RenderType"="Transparent" }
++		ZWrite Off Lighting Off Cull Off Fog { Mode Off }
++		Blend One OneMinusSrcAlpha
++		LOD 110
++		Pass {
++			CGPROGRAM
+ 			#pragma vertex vert
+ 			#pragma fragment frag
+-
+-			float4x4 unity_ObjectToWorld;
+-			float4x4 unity_MatrixVP;
++			#include "UnityCG.cginc"
++			sampler2D _MainTex;
+ 			float4 _MainTex_ST;
+-
+-			struct Vertex_Stage_Input
+-			{
+-				float4 pos : POSITION;
+-				float2 uv : TEXCOORD0;
+-			};
+-
+-			struct Vertex_Stage_Output
+-			{
+-				float2 uv : TEXCOORD0;
+-				float4 pos : SV_POSITION;
+-			};
+-
+-			Vertex_Stage_Output vert(Vertex_Stage_Input input)
+-			{
+-				Vertex_Stage_Output output;
+-				output.uv = (input.uv.xy * _MainTex_ST.xy) + _MainTex_ST.zw;
+-				output.pos = mul(unity_MatrixVP, mul(unity_ObjectToWorld, input.pos));
+-				return output;
++			struct appdata { float4 vertex : POSITION; float2 uv : TEXCOORD0; fixed4 color : COLOR; };
++			struct v2f { float4 pos : SV_POSITION; float2 uv : TEXCOORD0; fixed4 color : COLOR; };
++			v2f vert (appdata v) {
++				v2f o;
++				o.pos = UnityObjectToClipPos(v.vertex);
++				o.uv = TRANSFORM_TEX(v.uv, _MainTex);
++				o.color = v.color;
++				return o;
+ 			}
+-
+-			Texture2D<float4> _MainTex;
+-			SamplerState sampler_MainTex;
+-
+-			struct Fragment_Stage_Input
+-			{
+-				float2 uv : TEXCOORD0;
+-			};
+-
+-			float4 frag(Fragment_Stage_Input input) : SV_TARGET
+-			{
+-				return _MainTex.Sample(sampler_MainTex, input.uv.xy);
++			fixed4 frag (v2f i) : SV_Target {
++				fixed4 c = tex2D(_MainTex, i.uv) * i.color;
++				c.rgb *= i.color.a;
++				return c;
+ 			}
+-
+-			ENDHLSL
++			ENDCG
+ 		}
+ 	}
+-}
+\ No newline at end of file
++}
+diff --git a/UnityProject/ProjectSettings/AudioManager.asset b/UnityProject/ProjectSettings/AudioManager.asset
+index 8ba1ff3..8d2a270 100644
+--- a/UnityProject/ProjectSettings/AudioManager.asset
++++ b/UnityProject/ProjectSettings/AudioManager.asset
+@@ -8,9 +8,10 @@ AudioManager:
+   Doppler Factor: 1
+   Default Speaker Mode: 2
+   m_SampleRate: 0
+-  m_DSPBufferSize: 0
++  m_DSPBufferSize: 1024
++  m_RequestedDSPBufferSize: 1024
+   m_VirtualVoiceCount: 512
+-  m_RealVoiceCount: 32
++  m_RealVoiceCount: 64
+   m_SpatializerPlugin:
+   m_DisableAudio: 0
+   m_VirtualizeEffects: 1

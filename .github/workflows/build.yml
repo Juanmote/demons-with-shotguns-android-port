@@ -1,0 +1,199 @@
+name: Compilar APK
+
+# Monta la APK de Android a partir de TU copia de Steam del juego.
+# Solo funciona en un repositorio PRIVADO (ver README): los archivos del juego no deben publicarse.
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: build
+  cancel-in-progress: true
+
+env:
+  UNITY_IMAGE: unityci/editor:ubuntu-2021.3.45f1-android-3
+  ASSETRIPPER_URL: https://github.com/AssetRipper/AssetRipper/releases/download/2.0.0/AssetRipper_linux_x64.tar.xz
+  # Huella de dws_Data/Managed/Assembly-CSharp.dll de la versión de Steam con la que se hizo el port
+  STEAM_DLL_SHA256: db3f8aa140985c72a18d672520cc2de31d76cd70904a9b8a1535beab221aabe7
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 300
+    steps:
+      - name: Comprobar que el repositorio es privado
+        if: ${{ !github.event.repository.private }}
+        run: |
+          echo "::error::Este repositorio es público. Haz una copia PRIVADA (ver README) antes de subir los archivos del juego."
+          exit 1
+
+      - name: Comprobar los secretos de Unity
+        env:
+          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+        run: |
+          if [ -z "$UNITY_EMAIL" ] || [ -z "$UNITY_PASSWORD" ]; then
+            echo "::error::Faltan los secretos UNITY_EMAIL y UNITY_PASSWORD (cuenta gratuita de Unity). Ver README."
+            exit 1
+          fi
+
+      - name: Liberar espacio en disco
+        run: |
+          sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc /opt/hostedtoolcache/CodeQL /usr/local/share/boost
+          sudo docker image prune --all --force > /dev/null
+          df -h /
+
+      - uses: actions/checkout@v4
+
+      - name: Conseguir los archivos del juego
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y -qq p7zip-full > /dev/null
+          mkdir -p "$RUNNER_TEMP/subida" "$RUNNER_TEMP/juego"
+          # 1) Archivos subidos a la carpeta game/ del repositorio
+          if [ -d game ]; then cp -r game/. "$RUNNER_TEMP/subida/"; rm -f "$RUNNER_TEMP/subida/LEEME.md"; fi
+          # 2) O archivos adjuntos a una release con la etiqueta "juego"
+          if [ -z "$(ls -A "$RUNNER_TEMP/subida")" ]; then
+            gh release download juego -R "$GITHUB_REPOSITORY" -D "$RUNNER_TEMP/subida" || true
+          fi
+          ls -la "$RUNNER_TEMP/subida"
+          if [ -z "$(ls -A "$RUNNER_TEMP/subida")" ]; then
+            echo "::error::No encuentro los archivos del juego. Súbelos a la carpeta game/ o a una release con la etiqueta 'juego' (ver README)."
+            exit 1
+          fi
+          cd "$RUNNER_TEMP/subida"
+          # Descomprime lo que haga falta (zip, 7z, 7z en volúmenes, rar); lo que no esté comprimido se copia tal cual
+          for f in *; do
+            case "$f" in
+              *.7z.001|*.zip.001|*.zip|*.7z|*.rar) 7z x -y -o"$RUNNER_TEMP/juego" "$f" > /dev/null ;;
+              *.7z.[0-9][0-9][0-9]|*.zip.[0-9][0-9][0-9]) ;;  # resto de volúmenes: se leen con el .001
+              *) cp -r "$f" "$RUNNER_TEMP/juego/" ;;
+            esac
+          done
+          DATA=$(find "$RUNNER_TEMP/juego" -type d -name '*_Data' -exec test -f '{}/globalgamemanagers' \; -print | head -1)
+          if [ -z "$DATA" ]; then
+            echo "::error::No encuentro la carpeta dws_Data del juego dentro de lo que has subido."
+            exit 1
+          fi
+          echo "Carpeta del juego: $DATA"
+          echo "GAME_DIR=$(dirname "$DATA")" >> "$GITHUB_ENV"
+          SUM=$(sha256sum "$DATA/Managed/Assembly-CSharp.dll" | cut -d' ' -f1 || true)
+          if [ "$SUM" != "$STEAM_DLL_SHA256" ]; then
+            echo "::warning::Tu copia del juego no es exactamente la versión con la que se hizo el port. Se intenta igualmente."
+          fi
+
+      - name: Extraer el proyecto Unity con AssetRipper
+        run: |
+          mkdir -p logs "$RUNNER_TEMP/ar"
+          curl -sSL -o ar.tar.xz "$ASSETRIPPER_URL"
+          tar -xf ar.tar.xz -C "$RUNNER_TEMP/ar" && rm ar.tar.xz
+          chmod +x "$RUNNER_TEMP/ar/AssetRipper.GUI.Free"
+          cd "$RUNNER_TEMP/ar"
+          ./AssetRipper.GUI.Free --port 8888 --headless --log --log-path "$GITHUB_WORKSPACE/logs/assetripper.log" > "$GITHUB_WORKSPACE/logs/assetripper-stdout.log" 2>&1 &
+          for i in $(seq 1 60); do curl -s -o /dev/null http://127.0.0.1:8888/ && break; sleep 2; done
+          curl -sS -X POST --data-urlencode "Path=$GAME_DIR" http://127.0.0.1:8888/LoadFolder -o /dev/null -w 'carga %{http_code}\n'
+          curl -sS -X POST --data-urlencode "Path=$RUNNER_TEMP/out" http://127.0.0.1:8888/Export/UnityProject -o /dev/null -w 'exportación %{http_code}\n'
+          rm -rf "$GITHUB_WORKSPACE/UnityProject" && mkdir -p "$GITHUB_WORKSPACE/UnityProject"
+          cp -r "$RUNNER_TEMP/out/ExportedProject/." "$GITHUB_WORKSPACE/UnityProject/"
+          rm -rf "$GITHUB_WORKSPACE/UnityProject/Library" "$GITHUB_WORKSPACE/UnityProject/Temp" "$GITHUB_WORKSPACE/UnityProject/Logs"
+          rm -rf "$RUNNER_TEMP/out" "$RUNNER_TEMP/juego" "$RUNNER_TEMP/subida"
+
+      - name: Aplicar el port de Android
+        run: |
+          pip install -q pillow
+          bash tools/aplicar-port.sh
+
+      - name: Descargar los iconos de logros de Steam
+        continue-on-error: true
+        run: |
+          mkdir -p UnityProject/Assets/Resources/achievements
+          curl -sSL -A "Mozilla/5.0" "https://steamcommunity.com/stats/370940/achievements/?l=english" -o page.html
+          python3 - <<'EOF'
+          import re, urllib.request
+          s = open('page.html', encoding='utf-8', errors='replace').read().replace('\\"', '"')
+          pat = r'"api_name":"(\w+)".*?"icon_achieved":"(\w+\.jpg)","icon_unachieved":"(\w+\.jpg)"'
+          base = 'https://shared.fastly.steamstatic.com/community_assets/images/apps/370940/'
+          n = 0
+          for api, on, off in re.findall(pat, s):
+              for fn, suffix in ((on, ''), (off, '_off')):
+                  req = urllib.request.Request(base + fn, headers={'User-Agent': 'Mozilla/5.0'})
+                  open('UnityProject/Assets/Resources/achievements/%s%s.jpg' % (api, suffix), 'wb').write(urllib.request.urlopen(req).read())
+              n += 1
+          print('iconos de logros:', n)
+          EOF
+          rm -f page.html
+
+      - name: Preparar el script de compilación
+        run: |
+          mkdir -p UnityProject/Assets/Editor build
+          cp tools/BuildAndroid.cs UnityProject/Assets/Editor/BuildAndroid.cs
+
+      - name: Caché de Library
+        uses: actions/cache@v4
+        with:
+          path: UnityProject/Library
+          key: Library-2021.3-${{ hashFiles('patches/**', 'port/**', 'tools/**') }}
+          restore-keys: Library-2021.3-
+
+      - name: Firma (opcional)
+        env:
+          KS_B64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+        run: |
+          if [ -n "$KS_B64" ]; then echo "$KS_B64" | base64 -d > "$GITHUB_WORKSPACE/build/release.keystore"; fi
+
+      - name: Compilar con Unity
+        id: unity
+        continue-on-error: true
+        env:
+          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+          ANDROID_KEYSTORE_PASS: ${{ secrets.ANDROID_KEYSTORE_PASS }}
+        run: |
+          KSP=""; [ -f build/release.keystore ] && KSP=/work/build/release.keystore
+          docker pull -q "$UNITY_IMAGE"
+          docker run --rm \
+            -e UNITY_EMAIL -e UNITY_PASSWORD -e ANDROID_KEYSTORE_PASS -e ANDROID_KEYSTORE_PATH="$KSP" -e APK_VERSION=${{ github.run_number }} \
+            -v "$GITHUB_WORKSPACE":/work -w /work \
+            "$UNITY_IMAGE" bash /work/tools/unity-run.sh
+          rm -f build/release.keystore
+          test -f build/DemonsWithShotguns.apk
+
+      - name: Resumen de errores
+        if: always()
+        env:
+          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+        run: |
+          sudo chown -R "$USER" logs build UnityProject 2>/dev/null || true
+          { echo "compilación ${{ github.run_number }} resultado: ${{ steps.unity.outcome }}";
+            grep -E "error CS|Compilation failed|\[DWS\]|BuildFailedException|Error building|Exception" logs/unity-build.log | sort | uniq | head -400; } > logs/errores.txt 2>/dev/null || true
+          grep -v -i password logs/unity-activate.log 2>/dev/null | sed "s/${UNITY_EMAIL:-@@@}/<email>/g" | tail -120 > logs/licencia.txt || true
+          rm -f logs/unity-activate.log
+          tail -c 3000000 logs/unity-build.log > logs/unity-build-tail.log 2>/dev/null || true
+          rm -f logs/unity-build.log
+          cat logs/errores.txt || true
+
+      - name: Guardar los registros
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: registros
+          path: logs/
+
+      - name: Publicar la APK en Releases
+        if: steps.unity.outcome == 'success'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "v1.0.${{ github.run_number }}" build/DemonsWithShotguns.apk \
+            --title "Demons with Shotguns Android 1.0.${{ github.run_number }}" \
+            --notes "APK arm64 montada con mi copia de Steam del juego."
+
+      - name: Resultado
+        if: steps.unity.outcome != 'success'
+        run: |
+          echo "::error::La compilación ha fallado. Descarga los 'registros' de esta ejecución y mira errores.txt y licencia.txt."
+          exit 1
