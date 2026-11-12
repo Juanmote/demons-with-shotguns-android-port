@@ -2,11 +2,20 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android" package="com.unity3d.player" xmlns:tools="http://schemas.android.com/tools">
     <uses-permission android:name="android.permission.VIBRATE" />
     <application>
-        <activity android:name="com.juanmote.demonswithshotguns.DwsActivity" android:theme="@style/UnityThemeSelector" android:exported="true">
+        <!-- Pantalla de arranque: en la APK genérica pide la carpeta del juego de Steam y genera la OBB.
+             En la APK completa abre el juego directamente. -->
+        <activity android:name="com.juanmote.demonswithshotguns.DwsSetupActivity"
+            android:theme="@android:style/Theme.Material.NoActionBar.Fullscreen"
+            android:screenOrientation="sensorLandscape"
+            android:configChanges="orientation|screenSize|screenLayout|keyboard|keyboardHidden|navigation|uiMode"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
+                <category android:name="android.intent.category.LEANBACK_LAUNCHER" />
             </intent-filter>
+        </activity>
+        <activity android:name="com.juanmote.demonswithshotguns.DwsActivity" android:theme="@style/UnityThemeSelector" android:exported="false">
             <meta-data android:name="unityplayer.UnityActivity" android:value="true" />
         </activity>
     </application>

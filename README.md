@@ -3,7 +3,7 @@
 Port no oficial de **Demons with Shotguns** (Mindshaft Games) para consolas y móviles Android (arm64),
 traducido al castellano y con controles físicos, táctiles, vibración, logros y extras.
 
-**Este repositorio no contiene el juego.** Para montar la APK necesitas tu propia copia de
+**Este repositorio no contiene el juego.** Para jugar necesitas tu propia copia de
 [Demons with Shotguns en Steam](https://store.steampowered.com/app/370940/Demons_with_Shotguns/).
 Cómpralo y apoya a sus creadores: <https://www.mindshaftgames.com>
 
@@ -55,7 +55,18 @@ Port: **Juanmote**. Juego original: **Mindshaft Games, LLC**. Este proyecto no e
 ### Diagnóstico
 - Si algo falla, el archivo `Android/data/com.juanmote.demonswithshotguns/files/dws-diag.txt` recoge el equipo, los mandos y los errores. Adjúntalo al avisar del problema.
 
-## Cómo montar tu APK
+## Instalación
+
+1. Descarga `DemonsWithShotguns.apk` de la última versión en **[Releases](../../releases/latest)** e instálala.
+2. Copia a la consola la carpeta del juego de Steam (la que contiene `dws_Data`). En Steam: clic derecho en el juego › Administrar › Ver archivos locales.
+3. Abre el juego, pulsa **Seleccionar carpeta del juego** y elige esa carpeta (vale también la propia `dws_Data`).
+4. Espera a que se preparen los datos (necesita unos 450 MB libres). Solo se hace la primera vez; al actualizar la APK se repite solo.
+
+La APK no lleva gráficos, sonido, música ni fuentes del juego: los coge de tu copia de Steam al prepararlos.
+Hace falta la versión de Windows actual de Steam; si tus archivos no coinciden, el juego avisa.
+Después puedes borrar la carpeta copiada.
+
+## Alternativa: compilar tu propia APK
 
 Todo se hace desde la web de GitHub; no hace falta instalar nada. La APK se compila en los
 servidores de GitHub (gratis) con tus archivos del juego.
@@ -79,7 +90,14 @@ Si la compilación falla, descarga los **registros** de esa ejecución (al final
 Opcional: para firmar siempre con la misma clave (y poder actualizar sin desinstalar), añade los secretos
 `ANDROID_KEYSTORE_BASE64` (tu keystore en base64), `ANDROID_KEYSTORE_PASS` y, si el alias no es `dws`, `ANDROID_KEY_ALIAS`.
 
-## Cómo funciona por dentro
+## Cómo funciona la APK de Releases
+
+- Se compila con Unity en modo *split binary*: la APK solo lleva el código y una escena de arranque vacía, y el resto de datos va en una OBB.
+- `tools/make_generic.py` convierte esa OBB en un «molde» con todo lo que viene de Steam (texturas, audio y fuentes) puesto a cero, más un manifiesto con las órdenes para rellenarlo. Ambos van dentro de la APK.
+- Al abrirla, `DwsSetupActivity` pide la carpeta del juego y `DwsObbBuilder` rellena el molde con tus archivos de Steam (comprobando cada archivo con su CRC) y genera la OBB en `Android/obb/com.juanmote.demonswithshotguns/`.
+- Solo quedan dentro de la APK la estructura de los niveles y los gráficos propios del port (controles táctiles e iconos de logros).
+
+## Cómo funciona por dentro (compilación propia)
 
 1. Se extrae el proyecto Unity de tu copia del juego con [AssetRipper](https://github.com/AssetRipper/AssetRipper) 2.0.0.
 2. `tools/aplicar-port.sh` lo convierte en el port:
@@ -94,7 +112,7 @@ El port se hizo con la versión de Steam actual del juego; si tu copia es distin
 | Carpeta | Contenido |
 |---|---|
 | `port/Assets/Scripts/Assembly-CSharp/` | Código propio: controles táctiles (`DwsTouchControls`), menú de extras (`DwsOverlay`), logros, trucos, filtros, copia de seguridad, limitador de sonido, reinicio de escena, traducción (`Loc`), vibración |
-| `port/Assets/Plugins/Android/` | Actividad Android (botones C/Z, vibración, selector de archivos de la copia de seguridad) |
+| `port/Assets/Plugins/Android/` | Actividad Android (botones C/Z, vibración, selector de archivos de la copia de seguridad) y pantalla de arranque que genera los datos con tu copia de Steam (`DwsSetupActivity`, `DwsObbBuilder`) |
 | `port/Assets/Resources/` | Gráficos de los controles táctiles y shader de filtros |
 | `patches/` | Cambios a los archivos del juego extraído |
-| `tools/` | Aplicación del port, parche de fuentes y script de compilación |
+| `tools/` | Aplicación del port, parche de fuentes, script de compilación y generador del molde de la APK de Releases (`make_generic.py`, `texformats.tsv`) |
